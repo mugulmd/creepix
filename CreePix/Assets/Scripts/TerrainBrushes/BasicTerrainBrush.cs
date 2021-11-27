@@ -10,7 +10,7 @@ public class BasicTerrainBrush : TerrainBrush
         {
             for(int zi = -radius; zi <= radius; zi++)
             {
-                terrain.set(x+xi, z+zi, 10);
+                terrain.set(x+xi, z+zi, 5);
             }
         }
     }
