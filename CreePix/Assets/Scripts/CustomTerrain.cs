@@ -122,4 +122,14 @@ public class CustomTerrain : MonoBehaviour
     {
         terrain_data.SetHeights(0, 0, heightmap_data);
     }
+
+    // Terrain dimensions
+    public int getWidth()
+    {
+        return heightmap_width;
+    }
+    public int getHeight()
+    {
+        return heightmap_height;
+    }
 }

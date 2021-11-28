@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FlattenTerrainBrush : TerrainBrush
+public class FlattenBrush : TerrainBrush
 {
     public override void draw(int x, int z)
     {

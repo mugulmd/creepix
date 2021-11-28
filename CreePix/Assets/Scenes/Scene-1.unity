@@ -138,6 +138,9 @@ GameObject:
   - component: {fileID: 190539406}
   - component: {fileID: 190539405}
   - component: {fileID: 190539407}
+  - component: {fileID: 190539408}
+  - component: {fileID: 190539409}
+  - component: {fileID: 190539410}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -226,9 +229,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 190539400}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de473094552f3994485fdd0c32b6c6d7, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fb9e2a8adfbc1645b1110cc78c59a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  height: 5
+  circular: 0
 --- !u!114 &190539406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,9 +255,52 @@ MonoBehaviour:
   m_GameObject: {fileID: 190539400}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b1f5f9436ac5e94ea5da937726bc581, type: 3}
+  m_Script: {fileID: 11500000, guid: 3128ea41d56a04240a3e02d4ae748048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  strength: 0.1
+  circular: 0
+  push: 0
+--- !u!114 &190539408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190539400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e57383bdc05bd4893ebc7ae7eb1da7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  strength: 0.2
+  push: 0
+--- !u!114 &190539409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190539400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 630a52d15beaa2b479855e788126b5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &190539410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190539400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaae520152be73b4cadb5a2f44e9f5a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 5
+  scale: 20
 --- !u!1 &299677873
 GameObject:
   m_ObjectHideFlags: 0
