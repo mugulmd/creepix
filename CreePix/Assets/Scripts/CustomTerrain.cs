@@ -14,10 +14,16 @@ public class CustomTerrain : MonoBehaviour
     [Range(1, 100)]
     public int brush_radius = 10;
 
+    public GameObject object_prefab = null;
+    public float min_scale = 0.8f;
+    public float max_scale = 1.2f;
+
     private Brush current_brush;
 
     [SerializeField]
     private Camera cam;
+
+    public static System.Random rnd = new System.Random();
 
     // Start is called before the first frame update
     void Start()
@@ -77,6 +83,20 @@ public class CustomTerrain : MonoBehaviour
         return world2grid(x, 0.0f, z);
     }
 
+    // Get surface position
+    public Vector3 get3(int x, int z)
+    {
+        return new Vector3(x, get(x, z), z);
+    }
+    public Vector3 get3(float x, float z)
+    {
+        return new Vector3(x, get(x, z), z);
+    }
+    public Vector3 getInterp3(float x, float z)
+    {
+        return new Vector3(x, getInterp(x, z), z);
+    }
+
     // Get grid height for a node
     public float get(int x, int z)
     {
@@ -131,5 +151,41 @@ public class CustomTerrain : MonoBehaviour
     public int getHeight()
     {
         return heightmap_height;
+    }
+
+    // Return index in tree prototypes array
+    // Create a new tree prototype if necessary
+    public int registerPrefab(GameObject go)
+    {
+        for (int i = 0; i < terrain_data.treePrototypes.Length; i++)
+        {
+            if (terrain_data.treePrototypes[i].prefab == go)
+                return i;
+        }
+
+        TreePrototype proto = new TreePrototype();
+        proto.bendFactor = 0.0f;
+        proto.prefab = object_prefab;
+        List<TreePrototype> protos = new List<TreePrototype>(terrain_data.treePrototypes);
+        protos.Add(proto);
+        terrain_data.treePrototypes = protos.ToArray();
+        return protos.Count - 1;
+    }
+
+    // Spawn a new object (tree)
+    public void spawnObject(Vector3 loc, float scale, int proto_idx)
+    {
+        TreeInstance obj = new TreeInstance();
+        loc = new Vector3(loc.x / heightmap_width,
+                          loc.y / terrain_data.heightmapScale.y,
+                          loc.z / heightmap_height);
+        obj.position = loc;
+        obj.prototypeIndex = proto_idx;
+        obj.lightmapColor = Color.white;
+        obj.heightScale = scale;
+        obj.widthScale = scale;
+        obj.rotation = (float)rnd.NextDouble() * 2 * Mathf.PI;
+        obj.color = Color.white;
+        terrain.AddTreeInstance(obj);
     }
 }
