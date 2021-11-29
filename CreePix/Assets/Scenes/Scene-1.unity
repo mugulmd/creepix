@@ -314,9 +314,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 190539400}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f2c904635f7670409038ed3005a2790, type: 3}
+  m_Script: {fileID: 11500000, guid: 00b320c907d65b64da95484bb9d622cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  min_dist: 3
 --- !u!1 &299677873
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,6 +561,10 @@ PrefabInstance:
     - target: {fileID: 7424142538231793775, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_Name
       value: DeadTree_00
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424142538231793775, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}

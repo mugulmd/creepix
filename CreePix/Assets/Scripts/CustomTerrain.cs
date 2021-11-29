@@ -188,4 +188,25 @@ public class CustomTerrain : MonoBehaviour
         obj.color = Color.white;
         terrain.AddTreeInstance(obj);
     }
+
+    // Object (tree) manipulation
+    public int getObjectCount()
+    {
+        return terrain_data.treeInstanceCount;
+    }
+    public TreeInstance getObject(int index)
+    {
+        return terrain_data.GetTreeInstance(index);
+    }
+    // Returns an object (tree) location in grid space
+    public Vector3 getObjectLoc(int index)
+    {
+        return getObjectLoc(terrain_data.GetTreeInstance(index));
+    }
+    public Vector3 getObjectLoc(TreeInstance obj)
+    {
+        return new Vector3(obj.position.x * heightmap_width,
+                           obj.position.y * terrain_data.heightmapScale.y,
+                           obj.position.z * heightmap_height);
+    }
 }
