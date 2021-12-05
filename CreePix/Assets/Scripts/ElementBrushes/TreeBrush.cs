@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MinDistBrush : InstanceBrush
+public class TreeBrush : InstanceBrush
 {
     [Range(1, 50)]
     public float min_dist = 10;

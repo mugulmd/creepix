@@ -7,9 +7,12 @@ public class CustomTerrain : MonoBehaviour
     private Terrain terrain;
     private Collider terrain_collider;
     private TerrainData terrain_data;
-    private int heightmap_width;
-    private int heightmap_height;
+
+    private int heightmap_width, heightmap_height;
     private float[,] heightmap_data;
+
+    private int detail_width, detail_height;
+    private int[,] detail_layer;
 
     [Range(1, 100)]
     public int brush_radius = 10;
@@ -32,9 +35,23 @@ public class CustomTerrain : MonoBehaviour
             terrain = Terrain.activeTerrain;
         terrain_collider = terrain.GetComponent<Collider>();
         terrain_data = terrain.terrainData;
+
         heightmap_width = terrain_data.heightmapResolution;
         heightmap_height = terrain_data.heightmapResolution;
         heightmap_data = terrain_data.GetHeights(0, 0, heightmap_width, heightmap_height);
+
+        detail_width = terrain_data.detailWidth;
+        detail_height = terrain_data.detailHeight;
+        detail_layer = terrain_data.GetDetailLayer(0, 0, detail_width, detail_height, 0);
+        for (int y = 0; y < detail_height; y++)
+        {
+            for (int x = 0; x < detail_width; x++)
+            {
+                detail_layer[x, y] = 0;
+            }
+        }
+        saveDetails();
+
         current_brush = null;
     }
 
@@ -137,10 +154,24 @@ public class CustomTerrain : MonoBehaviour
         set((int)x, (int)z, val);
     }
 
+    // Get/Set detail density for a node
+    public int getDetailDensity(int x, int z)
+    {
+        return detail_layer[x, z];
+    }
+    public void setDetailDensity(int x, int z, int val)
+    {
+        detail_layer[x, z] = val;
+    }
+
     // Register changes made to the terrain
     public void save()
     {
         terrain_data.SetHeights(0, 0, heightmap_data);
+    }
+    public void saveDetails()
+    {
+        terrain_data.SetDetailLayer(0, 0, 0, detail_layer);
     }
 
     // Terrain dimensions
@@ -151,6 +182,12 @@ public class CustomTerrain : MonoBehaviour
     public int getHeight()
     {
         return heightmap_height;
+    }
+
+    // Get detail size
+    public Vector2 detailSize()
+    {
+        return new Vector2(detail_width, detail_height);
     }
 
     // Return index in tree prototypes array
