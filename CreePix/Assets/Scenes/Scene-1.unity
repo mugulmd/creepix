@@ -643,7 +643,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4840023655369913570, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 77.1
       objectReference: {fileID: 0}
     - target: {fileID: 4840023655369913570, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -651,7 +651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4840023655369913570, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 129.9
       objectReference: {fileID: 0}
     - target: {fileID: 4840023655369913570, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -684,10 +684,6 @@ PrefabInstance:
     - target: {fileID: 7424142538231793775, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
       propertyPath: m_Name
       value: DeadTree_00
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424142538231793775, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e79cfd30fb74c5c44b9abcb5e549a59d, type: 3}
