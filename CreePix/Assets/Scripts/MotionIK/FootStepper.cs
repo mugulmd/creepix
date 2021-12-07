@@ -19,6 +19,8 @@ public class FootStepper : MonoBehaviour
     // Flag to define when a leg is moving.
     public bool Moving;
 
+    public float speedAdjusment;
+
     // Awake is called when the script instance is being loaded.
     void Awake()
     {
@@ -167,7 +169,8 @@ public class FootStepper : MonoBehaviour
             // START TODO ###################
 
             Vector3 centerPoint = (startPos + endPos) / 2;
-            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
+            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / speedAdjusment;
+            //centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos);
 
             transform.position = Vector3.Lerp(Vector3.Lerp(startPos, centerPoint, normalizedTime), Vector3.Lerp(centerPoint, endPos, normalizedTime), normalizedTime);
 

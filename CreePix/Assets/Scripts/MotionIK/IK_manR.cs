@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IK : MonoBehaviour
+public class IK_manR : MonoBehaviour
 {
     [Header("Chain Settings")]
     public int chainLength = 2; // Number of spaces between the bone positions.
@@ -40,7 +40,7 @@ public class IK : MonoBehaviour
     private Quaternion startingTargetRotation;
     private Quaternion startingRotationRoot;
 
-    public float angle=20;
+    public float angle = 20;
 
     // Extra: Strength of going back to the start position.
     [Range(0, 1f)]
@@ -306,41 +306,29 @@ public class IK : MonoBehaviour
         for (int i = 0; i < bonesPositions.Length; i++)
         {
             if (i == bonesPositions.Length - 1)
-                bones[i].rotation = target.rotation * Quaternion.Inverse(startingTargetRotation)* startingBoneRotation[i];
+                bones[i].rotation = target.rotation * Quaternion.Inverse(startingTargetRotation) * startingBoneRotation[i];
 
             else
                 bones[i].rotation = Quaternion.FromToRotation(startingBoneDirectionToNext[i], bonesPositions[i + 1] - bonesPositions[i]) * startingBoneRotation[i];
 
-            
-            
-            
-            if (i<bonesPositions.Length-1)
-            {
-                float test = Vector3.Dot(bones[i].up, character.forward);
-                if (test < 0)
-                {
-                    bones[i].rotation = Quaternion.AngleAxis(180, bones[i].right) * bones[i].rotation;
-                }
-                else if (test < 0.3)
-                {
-                    bones[i].rotation = Quaternion.AngleAxis(angle, bones[i].right) * bones[i].rotation;
-                }
-            }
-            else
-            {
-                float test = Vector3.Dot(bones[i].right, character.forward);
-                if (test > 0)
-                {
-                    bones[i].rotation = Quaternion.AngleAxis(180, bones[i].up) * bones[i].rotation;
-                }
-                else if (test>-0.3)
-                {
-                    bones[i].rotation = Quaternion.AngleAxis(angle, bones[i].up) * bones[i].rotation;
-                }
 
+
+
+
+
+            float test = Vector3.Dot(bones[i].up, character.forward);
+            if (test < 0)
+            {
+                bones[i].rotation = Quaternion.AngleAxis(180, bones[i].right) * bones[i].rotation;
             }
-            
-            
+            else if (test >- 0.3)
+            {
+                bones[i].rotation = Quaternion.AngleAxis(angle, bones[i].right) * bones[i].rotation;
+            }
+
+
+
+
 
         }
 

@@ -161,8 +161,9 @@ MonoBehaviour:
   thirdBone: {fileID: 5472480}
   thirdBoneEulerAngleOffset: {x: 0, y: 0, z: 0}
   alignThirdBoneWithTargetRotation: 1
+  angle: 20
   snapBackStrength: 1
-  zombie: {fileID: 0}
+  character: {fileID: 450702175}
   goal: {fileID: 0}
 --- !u!4 &32925960 stripped
 Transform:
@@ -323,8 +324,9 @@ MonoBehaviour:
   thirdBone: {fileID: 7615490116861425498}
   thirdBoneEulerAngleOffset: {x: 0, y: 0, z: 0}
   alignThirdBoneWithTargetRotation: 1
+  angle: 20
   snapBackStrength: 1
-  zombie: {fileID: 0}
+  character: {fileID: 3022795541402333939}
   goal: {fileID: 0}
 --- !u!1 &308548738
 GameObject:
@@ -489,6 +491,11 @@ MonoBehaviour:
   LeftFoot: {fileID: 682146292}
   RightFoot: {fileID: 1271173681}
   spine: {fileID: 0}
+--- !u!4 &450702175 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4589403442617940465, guid: 14b3b60d28c6b8b4e92c67fc8ecd6318, type: 3}
+  m_PrefabInstance: {fileID: 1410357144}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &460912483
 GameObject:
   m_ObjectHideFlags: 0
@@ -1321,8 +1328,9 @@ MonoBehaviour:
   thirdBone: {fileID: 727814929}
   thirdBoneEulerAngleOffset: {x: 0, y: 0, z: 0}
   alignThirdBoneWithTargetRotation: 1
+  angle: 20
   snapBackStrength: 1
-  zombie: {fileID: 0}
+  character: {fileID: 450702175}
   goal: {fileID: 0}
 --- !u!4 &1331907939 stripped
 Transform:
@@ -1390,8 +1398,9 @@ MonoBehaviour:
   thirdBone: {fileID: 1208436494142720124}
   thirdBoneEulerAngleOffset: {x: 0, y: 0, z: 0}
   alignThirdBoneWithTargetRotation: 1
+  angle: 20
   snapBackStrength: 1
-  zombie: {fileID: 0}
+  character: {fileID: 3022795541402333939}
   goal: {fileID: 0}
 --- !u!1001 &1410357144
 PrefabInstance:
@@ -2941,7 +2950,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goal: {fileID: 460912487}
   turnSpeed: 150
-  moveSpeed: 0.5
+  moveSpeed: 1
   moveBackwardFactor: 0.66
   turnAcceleration: 2
   moveAcceleration: 1
