@@ -26,7 +26,7 @@ public class CustomTerrain : MonoBehaviour
     public static System.Random rnd = new System.Random();
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (!terrain)
             terrain = Terrain.activeTerrain;
@@ -38,6 +38,21 @@ public class CustomTerrain : MonoBehaviour
         heightmap_data = terrain_data.GetHeights(0, 0, heightmap_width, heightmap_height);
 
         current_brush = null;
+
+
+        // Details 
+        terrain_size = terrain_data.size;
+        detail_width = terrain_data.detailWidth;
+        detail_height = terrain_data.detailHeight;
+        detail_layer = terrain_data.GetDetailLayer(0, 0, detail_width, detail_height, 0);
+        for (int y = 0; y < detail_height; y++)
+        {
+            for (int x = 0; x < detail_width; x++)
+            {
+                detail_layer[x, y] = 0;
+            }
+        }
+        saveDetails();
     }
 
     // Update is called once per frame
@@ -215,5 +230,28 @@ public class CustomTerrain : MonoBehaviour
         return new Vector3(obj.position.x * heightmap_width,
                            obj.position.y * terrain_data.heightmapScale.y,
                            obj.position.z * heightmap_height);
+    }
+
+
+    // details
+    private int detail_width, detail_height;
+    private int[,] detail_layer = null;
+    private Vector3 terrain_size;
+
+    public void saveDetails()
+    {
+        terrain_data.SetDetailLayer(0, 0, 0, detail_layer);
+    }
+    public Vector2 detailSize()
+    {
+        return new Vector2(detail_width, detail_height);
+    }
+    public Vector3 terrainSize()
+    {
+        return terrain_size;
+    }
+    public int[,] getDetails()
+    {
+        return detail_layer;
     }
 }
