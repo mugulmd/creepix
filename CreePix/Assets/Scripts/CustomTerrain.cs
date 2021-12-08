@@ -235,6 +235,14 @@ public class CustomTerrain : MonoBehaviour
     {
         return terrain_data.GetTreeInstance(index);
     }
+    public List<TreeInstance> getObjects()
+    {
+        return new List<TreeInstance>(terrain_data.treeInstances);
+    }
+    public void setObjects(List<TreeInstance> instances)
+    {
+        terrain_data.SetTreeInstances(instances.ToArray(), true);
+    }
     // Returns an object (tree) location in grid space
     public Vector3 getObjectLoc(int index)
     {
