@@ -71,7 +71,7 @@ public class ProceduralMotion : MonoBehaviour
     // LateUpdate is called after all Update functions have been called.
     private void LateUpdate()
     {
-        //RootAdaptation();
+        RootAdaptation();
     }
 
     #region Root Motion
@@ -133,10 +133,7 @@ public class ProceduralMotion : MonoBehaviour
 
         // Apply rotation.
         transform.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.up);
-        //spine.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, spine.forward);
-        //LeftFoot.gameObject.transform.rotation*= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.up);
-        //RightFoot.gameObject.transform.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.up);
-        //spine.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.right);
+
     }
 
     #endregion
@@ -172,8 +169,11 @@ public class ProceduralMotion : MonoBehaviour
         Vector3 normalTerrainF = Vector3.zero; ;
 
         // The ray information gives you where you hit and the normal of the terrain in that location.
+        Debug.Log(groundChecker.name);
         if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity))
         {
+
+            Debug.Log(hit.transform.gameObject.tag);
             if (hit.transform.gameObject.tag == "Ground")
             {
                 posHit = hit.point;
@@ -182,8 +182,12 @@ public class ProceduralMotion : MonoBehaviour
             }
         }
 
+
+
+
+
         // The ray information gives you where you hit and the normal of the terrain in that location.
-        if (Physics.Raycast(raycastOriginFoot, -transform.up, out RaycastHit hitF, Mathf.Infinity))
+        if (Physics.Raycast(raycastOriginFoot+new Vector3(0,4,0), -transform.up, out RaycastHit hitF, Mathf.Infinity))
         {
             if (hit.transform.gameObject.tag == "Ground")
             {
@@ -203,7 +207,7 @@ public class ProceduralMotion : MonoBehaviour
         // START TODO ###################
 
         
-        transform.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
+        hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
 
         //IK.position = new Vector3(IK.position.x, constantIKPosition.y + posHitF.y, IK.position.z); ;
 

@@ -19,8 +19,6 @@ public class FootStepper : MonoBehaviour
     // Flag to define when a leg is moving.
     public bool Moving;
 
-    public float speedAdjusment;
-
     // Awake is called when the script instance is being loaded.
     void Awake()
     {
@@ -36,8 +34,6 @@ public class FootStepper : MonoBehaviour
     /// </summary>
     public void MoveLeg()
     {
-
-
         // If we are already moving, don't start another move.
         if (Moving)
         {
@@ -52,11 +48,10 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        float distFromHome = (transform.position - homeTransform.position).magnitude;
+        float distFromHome = Vector3.Distance(transform.position, homeTransform.position);
         float angleFromHome = Quaternion.Angle(transform.rotation, homeTransform.rotation);
 
-        // Change condition!
-        if (distFromHome > distanceThreshold || angleFromHome > angleThreshold)
+        if ((distFromHome > distanceThreshold) || (angleFromHome > angleThreshold))
         {
             // END TODO ###################
 
@@ -92,9 +87,13 @@ public class FootStepper : MonoBehaviour
          * Summing such vector to the real home position, you will get a new home position slighly moved.
          */
 
+        // START TODO ###################
+
         Vector3 towardsHome = (homeTransform.position - transform.position).normalized;
         float overshootDistance = distanceThreshold * stepOvershootFraction;
         Vector3 overshootVector = towardsHome * overshootDistance;
+
+        // END TODO ###################
 
         /*
          * Now, we build a raycast system. Check: https://docs.unity3d.com/ScriptReference/Physics.Raycast.html
@@ -107,20 +106,20 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up;
+        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up * 2f;
+
         if (Physics.Raycast(raycastOrigin, -homeTransform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
             endPos = hit.point;
             endNormal = hit.normal;
-
             return true;
         }
-
-        // END TODO ###################
 
         endPos = Vector3.zero;
         endNormal = Vector3.zero;
         return false;
+
+        // END TODO ###################
     }
 
     /// <summary>
@@ -153,8 +152,12 @@ public class FootStepper : MonoBehaviour
              * Then, you can normalized by using the moveTime variable.
              */
 
+            // START TODO ###################
+
             timeElapsed += Time.deltaTime;
             float normalizedTime = timeElapsed / moveTime;
+
+            // END TODO ###################
 
             // We could also apply some animation curve(e.g.Easing.EaseInOutCubic) to make the foot go smoother.
             normalizedTime = Easing.EaseInOutCubic(normalizedTime);
@@ -169,8 +172,7 @@ public class FootStepper : MonoBehaviour
             // START TODO ###################
 
             Vector3 centerPoint = (startPos + endPos) / 2;
-            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / speedAdjusment;
-            //centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos);
+            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
 
             transform.position = Vector3.Lerp(Vector3.Lerp(startPos, centerPoint, normalizedTime), Vector3.Lerp(centerPoint, endPos, normalizedTime), normalizedTime);
 
@@ -184,8 +186,6 @@ public class FootStepper : MonoBehaviour
 
             transform.rotation = Quaternion.Slerp(startRot, endRot, normalizedTime);
 
-
-
             // END TODO ###################
 
             // Wait for one frame
@@ -197,4 +197,18 @@ public class FootStepper : MonoBehaviour
         Moving = false;
     }
 
+    /// <summary>
+    /// Function for better visualization.
+    /// </summary>
+    void OnDrawGizmosSelected()
+    {
+        if (Moving)
+            Gizmos.color = Color.green;
+        else
+            Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(transform.position, 0.25f);
+        Gizmos.DrawLine(transform.position, homeTransform.position);
+        Gizmos.DrawWireCube(homeTransform.position, Vector3.one * 0.1f);
+    }
 }
