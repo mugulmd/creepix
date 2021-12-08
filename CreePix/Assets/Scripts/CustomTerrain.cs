@@ -23,6 +23,9 @@ public class CustomTerrain : MonoBehaviour
     private GameObject game_manager;
     private CameraController cam_ctrl;
 
+    private GameObject highlight_go;
+    private Projector highlight_proj;
+
     public static System.Random rnd = new System.Random();
 
     // Start is called before the first frame update
@@ -41,12 +44,16 @@ public class CustomTerrain : MonoBehaviour
 
         game_manager = GameObject.Find("Game Manager");
         cam_ctrl = game_manager.GetComponent<CameraController>();
+
+        highlight_go = GameObject.Find("Cursor Highlight");
+        highlight_proj = highlight_go.GetComponent<Projector>();
     }
 
     // Update is called once per frame
     void Update()
     {
         Vector3 hit_loc = Vector3.zero;
+        bool do_draw_target = false;
         RaycastHit hit;
 
         Ray ray = cam_ctrl.GetActiveCam().ScreenPointToRay(Input.mousePosition);
@@ -56,15 +63,31 @@ public class CustomTerrain : MonoBehaviour
         {
         
             hit_loc = hit.point;
+            if (current_brush != null)
+                do_draw_target = true;
             if (Input.GetMouseButton(0))
             {
-                if (current_brush)
+                if (current_brush != null)
                     current_brush.callDraw(hit_loc.x, hit_loc.z);
             }
         }
-        
+        drawTarget(hit_loc, do_draw_target);
+    }
 
-        
+    // Draw the brush marker on the terrain
+    private void drawTarget(Vector3 c, bool show)
+    {
+        if (show)
+        {
+            c.y += 100;
+            highlight_go.transform.position = c;
+            highlight_proj.orthographicSize = 2*brush_radius;
+        }
+        else
+        {
+            highlight_go.transform.position = new Vector3(-10, -10, -10);
+            highlight_proj.orthographicSize = 0;
+        }
     }
 
     // Get and set active brushes
