@@ -20,8 +20,8 @@ public class CustomTerrain : MonoBehaviour
 
     private Brush current_brush;
 
-    [SerializeField]
-    private Camera cam;
+    private GameObject game_manager;
+    private CameraController cam_ctrl;
 
     public static System.Random rnd = new System.Random();
 
@@ -38,6 +38,9 @@ public class CustomTerrain : MonoBehaviour
         heightmap_data = terrain_data.GetHeights(0, 0, heightmap_width, heightmap_height);
 
         current_brush = null;
+
+        game_manager = GameObject.Find("Game Manager");
+        cam_ctrl = game_manager.GetComponent<CameraController>();
     }
 
     // Update is called once per frame
@@ -46,7 +49,7 @@ public class CustomTerrain : MonoBehaviour
         Vector3 hit_loc = Vector3.zero;
         RaycastHit hit;
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam_ctrl.GetActiveCam().ScreenPointToRay(Input.mousePosition);
 
         
         if (terrain_collider.Raycast(ray, out hit, Mathf.Infinity))
@@ -197,6 +200,10 @@ public class CustomTerrain : MonoBehaviour
     }
 
     // Object (tree) manipulation
+    public int getPrototypeCount()
+    {
+        return terrain_data.treePrototypes.Length;
+    }
     public int getObjectCount()
     {
         return terrain_data.treeInstanceCount;
