@@ -48,8 +48,10 @@ public class CustomTerrain : MonoBehaviour
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
+        
         if (terrain_collider.Raycast(ray, out hit, Mathf.Infinity))
         {
+        
             hit_loc = hit.point;
             if (Input.GetMouseButton(0))
             {
@@ -57,6 +59,9 @@ public class CustomTerrain : MonoBehaviour
                     current_brush.callDraw(hit_loc.x, hit_loc.z);
             }
         }
+        
+
+        
     }
 
     // Get and set active brushes

@@ -24,13 +24,16 @@ public class ProceduralMotion : MonoBehaviour
     // Settings relative to body adaptation to the terrain.
     [Header("Body Adaptation Settings")]
     public Transform hips;
+    public Transform footChecker;
+
     public float heightAcceleration;
     public Vector3 constantHipsPosition;
     public Vector3 constantHipsRotation;
+    public Vector3 constantIKPosition;
+
     public Transform groundChecker;
-    public Vector3 normalTerrain;
-    public float distanceHit;
-    public Vector3 posHit;
+  
+
 
 
     // Foot Steppers for each leg.
@@ -42,7 +45,7 @@ public class ProceduralMotion : MonoBehaviour
 
 
 
-    public Transform spine;
+    public Transform IK;
 
 
 
@@ -68,7 +71,7 @@ public class ProceduralMotion : MonoBehaviour
     // LateUpdate is called after all Update functions have been called.
     private void LateUpdate()
     {
-        RootAdaptation();
+        //RootAdaptation();
     }
 
     #region Root Motion
@@ -147,6 +150,7 @@ public class ProceduralMotion : MonoBehaviour
     {
         constantHipsPosition = new Vector3(hips.position.x, hips.position.y, hips.position.z);
         constantHipsRotation = new Vector3(hips.rotation.x, hips.rotation.y, hips.rotation.z);
+        constantIKPosition = new Vector3(footChecker.position.x, footChecker.position.y, footChecker.position.z);
     }
 
     /// <summary>
@@ -155,16 +159,37 @@ public class ProceduralMotion : MonoBehaviour
     private void RootAdaptation()
     {
         // Origin of the ray.
-        Vector3 raycastOrigin = groundChecker.position;
+        Vector3 raycastOriginBody = groundChecker.position;
+
+        Vector3 raycastOriginFoot = footChecker.position;
+        
+        float distanceHit;
+        Vector3 posHit=Vector3.zero;
+        Vector3 normalTerrain = Vector3.zero; 
+
+        float distanceHitF;
+        Vector3 posHitF=Vector3.zero;
+        Vector3 normalTerrainF = Vector3.zero; ;
 
         // The ray information gives you where you hit and the normal of the terrain in that location.
-        if (Physics.Raycast(raycastOrigin, -transform.up, out RaycastHit hit, Mathf.Infinity))
+        if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity))
         {
             if (hit.transform.gameObject.tag == "Ground")
             {
                 posHit = hit.point;
                 distanceHit = hit.distance;
                 normalTerrain = hit.normal;
+            }
+        }
+
+        // The ray information gives you where you hit and the normal of the terrain in that location.
+        if (Physics.Raycast(raycastOriginFoot, -transform.up, out RaycastHit hitF, Mathf.Infinity))
+        {
+            if (hit.transform.gameObject.tag == "Ground")
+            {
+                posHitF = hitF.point;
+                distanceHitF = hit.distance;
+                normalTerrainF = hit.normal;
             }
         }
 
@@ -176,7 +201,11 @@ public class ProceduralMotion : MonoBehaviour
          */
 
         // START TODO ###################
-        hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
+
+        
+        transform.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
+
+        //IK.position = new Vector3(IK.position.x, constantIKPosition.y + posHitF.y, IK.position.z); ;
 
         Quaternion grndTilt = Quaternion.FromToRotation(hips.up, normalTerrain);
         //hips.rotation = Quaternion.Slerp(hips.rotation, grndTilt * hips.rotation, 1 - Mathf.Exp(-heightAcceleration * Time.deltaTime));
