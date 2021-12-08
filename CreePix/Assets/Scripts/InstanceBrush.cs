@@ -30,6 +30,10 @@ public abstract class InstanceBrush : Brush
         {
             return;
         }
+        if (terrain.getSteepness(x, z) > terrain.max_steepness)
+        {
+            return;
+        }
         float scale_diff = Mathf.Abs(terrain.max_scale - terrain.min_scale);
         float scale_min = Mathf.Min(terrain.max_scale, terrain.min_scale);
         float scale = (float)CustomTerrain.rnd.NextDouble() * scale_diff + scale_min;

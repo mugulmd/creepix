@@ -17,6 +17,7 @@ public class CustomTerrain : MonoBehaviour
     public GameObject object_prefab = null;
     public float min_scale = 0.8f;
     public float max_scale = 1.2f;
+    public float max_steepness = 30;
 
     private Brush current_brush;
 
