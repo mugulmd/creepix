@@ -40,7 +40,7 @@ public class IK : MonoBehaviour
     private Quaternion startingTargetRotation;
     private Quaternion startingRotationRoot;
 
-    public float angle=20;
+    public float angle = 20;
 
     // Extra: Strength of going back to the start position.
     [Range(0, 1f)]
@@ -48,7 +48,7 @@ public class IK : MonoBehaviour
 
 
     public Transform character;
-    public Transform goal;
+
 
     // Awake is called when the script instance is being loaded.
     private void Awake()
@@ -197,18 +197,14 @@ public class IK : MonoBehaviour
             {
                 bonesPositions[i] = bonesPositions[i - 1] + bonesLength[i - 1] * direction;
             }
-
             // Extra: Rotation fixes for the bones of this skeleton.
             
             Vector3 towardPole = pole.position - firstBone.position;
             Vector3 towardTarget = target.position - firstBone.position;
-
             bones[0].rotation = Quaternion.LookRotation(towardTarget, towardPole);
             bones[0].localRotation *= Quaternion.Euler(firstBoneEulerAngleOffset);
-
             bones[1].rotation = Quaternion.LookRotation(towardTarget, towardPole);
             bones[1].localRotation *= Quaternion.Euler(secondBoneEulerAngleOffset);
-
             bones[2].rotation = target.rotation;
             bones[2].localRotation *= Quaternion.Euler(thirdBoneEulerAngleOffset);
             */
@@ -306,15 +302,15 @@ public class IK : MonoBehaviour
         for (int i = 0; i < bonesPositions.Length; i++)
         {
             if (i == bonesPositions.Length - 1)
-                bones[i].rotation = target.rotation * Quaternion.Inverse(startingTargetRotation)* startingBoneRotation[i];
+                bones[i].rotation = target.rotation * Quaternion.Inverse(startingTargetRotation) * startingBoneRotation[i];
 
             else
                 bones[i].rotation = Quaternion.FromToRotation(startingBoneDirectionToNext[i], bonesPositions[i + 1] - bonesPositions[i]) * startingBoneRotation[i];
 
+
+
             
-            
-            
-            if (i<bonesPositions.Length-1)
+            if (i < bonesPositions.Length - 1)
             {
                 float test = Vector3.Dot(bones[i].up, character.forward);
                 if (test < 0)
@@ -333,14 +329,14 @@ public class IK : MonoBehaviour
                 {
                     bones[i].rotation = Quaternion.AngleAxis(180, bones[i].up) * bones[i].rotation;
                 }
-                else if (test>-0.3)
+                else if (test > -0.3)
                 {
                     bones[i].rotation = Quaternion.AngleAxis(angle, bones[i].up) * bones[i].rotation;
                 }
 
             }
             
-            
+
 
         }
 

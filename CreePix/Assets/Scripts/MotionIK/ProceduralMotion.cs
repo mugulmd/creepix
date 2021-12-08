@@ -24,15 +24,16 @@ public class ProceduralMotion : MonoBehaviour
     // Settings relative to body adaptation to the terrain.
     [Header("Body Adaptation Settings")]
     public Transform hips;
-    public Transform footChecker;
+
 
     public float heightAcceleration;
     public Vector3 constantHipsPosition;
     public Vector3 constantHipsRotation;
-    public Vector3 constantIKPosition;
+
+    public LayerMask groundRaycastMask = ~0; // Ground layer that you need to detect by raycasting.
 
     public Transform groundChecker;
-  
+    public Transform spine;
 
 
 
@@ -41,11 +42,13 @@ public class ProceduralMotion : MonoBehaviour
     public FootStepper LeftFoot;
     public FootStepper RightFoot;
 
+    public int direction;
 
 
 
 
-    public Transform IK;
+
+
 
 
 
@@ -145,9 +148,27 @@ public class ProceduralMotion : MonoBehaviour
     /// </summary>
     private void BodyInitialize()
     {
-        constantHipsPosition = new Vector3(hips.position.x, hips.position.y, hips.position.z);
+
+        float distanceHit = 0;
+        Vector3 posHit = Vector3.zero;
+        Vector3 normalTerrain = Vector3.zero;
+
+        Vector3 raycastOriginBody = groundChecker.position;
+
+        if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity))
+        {
+
+            Debug.Log(hit.transform.gameObject.layer);
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
+            {
+                posHit = hit.point;
+                distanceHit = hit.distance;
+                normalTerrain = hit.normal;
+            }
+        }
+        constantHipsPosition = new Vector3(hips.position.x, hips.position.y-posHit.y, hips.position.z);
         constantHipsRotation = new Vector3(hips.rotation.x, hips.rotation.y, hips.rotation.z);
-        constantIKPosition = new Vector3(footChecker.position.x, footChecker.position.y, footChecker.position.z);
+
     }
 
     /// <summary>
@@ -157,24 +178,20 @@ public class ProceduralMotion : MonoBehaviour
     {
         // Origin of the ray.
         Vector3 raycastOriginBody = groundChecker.position;
-
-        Vector3 raycastOriginFoot = footChecker.position;
-        
-        float distanceHit;
+        Vector3 rayCastOriginSpine = spine.position;
+        float distanceHit=0;
         Vector3 posHit=Vector3.zero;
-        Vector3 normalTerrain = Vector3.zero; 
+        Vector3 normalTerrain = Vector3.zero;
 
-        float distanceHitF;
-        Vector3 posHitF=Vector3.zero;
-        Vector3 normalTerrainF = Vector3.zero; ;
+
+
+
 
         // The ray information gives you where you hit and the normal of the terrain in that location.
-        Debug.Log(groundChecker.name);
-        if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity))
+        if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
-
-            Debug.Log(hit.transform.gameObject.tag);
-            if (hit.transform.gameObject.tag == "Ground")
+            Debug.Log(hit.transform.gameObject.layer);
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
                 posHit = hit.point;
                 distanceHit = hit.distance;
@@ -183,19 +200,7 @@ public class ProceduralMotion : MonoBehaviour
         }
 
 
-
-
-
-        // The ray information gives you where you hit and the normal of the terrain in that location.
-        if (Physics.Raycast(raycastOriginFoot+new Vector3(0,4,0), -transform.up, out RaycastHit hitF, Mathf.Infinity))
-        {
-            if (hit.transform.gameObject.tag == "Ground")
-            {
-                posHitF = hitF.point;
-                distanceHitF = hit.distance;
-                normalTerrainF = hit.normal;
-            }
-        }
+        
 
         /*
          * In this layer, we need to refine the position and rotation of the hips based on the ground. Without this part, the animal would not lift its root body when walking on high terrains.
@@ -206,15 +211,34 @@ public class ProceduralMotion : MonoBehaviour
 
         // START TODO ###################
 
+
+        hips.position = new Vector3(hips.position.x, constantHipsPosition.y+posHit.y, hips.position.z);
+
+
+
+
+  
         
-        hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
-
-        //IK.position = new Vector3(IK.position.x, constantIKPosition.y + posHitF.y, IK.position.z); ;
-
-        Quaternion grndTilt = Quaternion.FromToRotation(hips.up, normalTerrain);
-        //hips.rotation = Quaternion.Slerp(hips.rotation, grndTilt * hips.rotation, 1 - Mathf.Exp(-heightAcceleration * Time.deltaTime));
+        
+        //Debug.DrawRay(rayCastOriginSpine, normalTerrain,Color.red);
+        //Debug.DrawRay(rayCastOriginSpine, -spine.right,Color.white);
 
 
+
+        if (Vector3.Dot(normalTerrain.normalized, transform.forward) < -0.5)
+        {
+            float angle =(90- Vector3.Angle(normalTerrain, transform.up))/4;
+            Quaternion grndTilt = Quaternion.AngleAxis(angle, direction*spine.forward);
+            spine.rotation = Quaternion.Slerp(spine.rotation, grndTilt * spine.rotation,  1 - Mathf.Exp(-heightAcceleration * Time.deltaTime));
+        }
+        else
+        {
+            Quaternion grndTilt = Quaternion.FromToRotation(-spine.right, transform.up);
+            spine.rotation = Quaternion.Slerp(spine.rotation, grndTilt * spine.rotation, 1 - Mathf.Exp(-heightAcceleration * Time.deltaTime));
+        }
+        
+
+      
 
 
         // END TODO ###################

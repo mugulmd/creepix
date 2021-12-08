@@ -106,7 +106,7 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up * 2f;
+        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up *100f;
 
         if (Physics.Raycast(raycastOrigin, -homeTransform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
@@ -172,7 +172,8 @@ public class FootStepper : MonoBehaviour
             // START TODO ###################
 
             Vector3 centerPoint = (startPos + endPos) / 2;
-            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
+            //centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
+            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) *2f;
 
             transform.position = Vector3.Lerp(Vector3.Lerp(startPos, centerPoint, normalizedTime), Vector3.Lerp(centerPoint, endPos, normalizedTime), normalizedTime);
 

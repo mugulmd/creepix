@@ -48,7 +48,7 @@ public class IK_manL : MonoBehaviour
 
 
     public Transform character;
-    public Transform goal;
+
 
     // Awake is called when the script instance is being loaded.
     private void Awake()
