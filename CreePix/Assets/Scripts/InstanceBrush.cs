@@ -24,15 +24,24 @@ public abstract class InstanceBrush : Brush
         draw((float)x, (float)z);
     }
 
-    public void spawnObject(float x, float z)
+    public void spawnObject(float x, float z, int idx)
     {
-        if (prefab_idx == -1)
+        if (idx == -1)
+        {
+            return;
+        }
+        if (terrain.getSteepness(x, z) > terrain.max_steepness)
         {
             return;
         }
         float scale_diff = Mathf.Abs(terrain.max_scale - terrain.min_scale);
         float scale_min = Mathf.Min(terrain.max_scale, terrain.min_scale);
         float scale = (float)CustomTerrain.rnd.NextDouble() * scale_diff + scale_min;
-        terrain.spawnObject(terrain.getInterp3(x, z), scale, prefab_idx);
+        terrain.spawnObject(terrain.getInterp3(x, z), scale, idx);
+    }
+
+    public void spawnObject(float x, float z)
+    {
+        spawnObject(x, z, prefab_idx);
     }
 }

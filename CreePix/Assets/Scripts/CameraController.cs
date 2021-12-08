@@ -26,4 +26,15 @@ public class CameraController : MonoBehaviour
             top_view_cam.enabled = !top_view_cam.enabled;
         }
     }
+
+    public Camera GetActiveCam()
+    {
+        if (player_cam.enabled)
+        {
+            return player_cam;
+        } else
+        {
+            return top_view_cam;
+        }
+    }
 }

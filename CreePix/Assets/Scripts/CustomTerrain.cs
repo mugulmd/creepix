@@ -17,11 +17,15 @@ public class CustomTerrain : MonoBehaviour
     public GameObject object_prefab = null;
     public float min_scale = 0.8f;
     public float max_scale = 1.2f;
+    public float max_steepness = 30;
 
     private Brush current_brush;
 
-    [SerializeField]
-    private Camera cam;
+    private GameObject game_manager;
+    private CameraController cam_ctrl;
+
+    private GameObject highlight_go;
+    private Projector highlight_proj;
 
     public static System.Random rnd = new System.Random();
 
@@ -38,30 +42,53 @@ public class CustomTerrain : MonoBehaviour
         heightmap_data = terrain_data.GetHeights(0, 0, heightmap_width, heightmap_height);
 
         current_brush = null;
+
+        game_manager = GameObject.Find("Game Manager");
+        cam_ctrl = game_manager.GetComponent<CameraController>();
+
+        highlight_go = GameObject.Find("Cursor Highlight");
+        highlight_proj = highlight_go.GetComponent<Projector>();
     }
 
     // Update is called once per frame
     void Update()
     {
         Vector3 hit_loc = Vector3.zero;
+        bool do_draw_target = false;
         RaycastHit hit;
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam_ctrl.GetActiveCam().ScreenPointToRay(Input.mousePosition);
 
         
         if (terrain_collider.Raycast(ray, out hit, Mathf.Infinity))
         {
         
             hit_loc = hit.point;
+            if (current_brush != null)
+                do_draw_target = true;
             if (Input.GetMouseButton(0))
             {
-                if (current_brush)
+                if (current_brush != null)
                     current_brush.callDraw(hit_loc.x, hit_loc.z);
             }
         }
-        
+        drawTarget(hit_loc, do_draw_target);
+    }
 
-        
+    // Draw the brush marker on the terrain
+    private void drawTarget(Vector3 c, bool show)
+    {
+        if (show)
+        {
+            c.y += 100;
+            highlight_go.transform.position = c;
+            highlight_proj.orthographicSize = 2*brush_radius;
+        }
+        else
+        {
+            highlight_go.transform.position = new Vector3(-10, -10, -10);
+            highlight_proj.orthographicSize = 0;
+        }
     }
 
     // Get and set active brushes
@@ -197,6 +224,10 @@ public class CustomTerrain : MonoBehaviour
     }
 
     // Object (tree) manipulation
+    public int getPrototypeCount()
+    {
+        return terrain_data.treePrototypes.Length;
+    }
     public int getObjectCount()
     {
         return terrain_data.treeInstanceCount;
@@ -204,6 +235,14 @@ public class CustomTerrain : MonoBehaviour
     public TreeInstance getObject(int index)
     {
         return terrain_data.GetTreeInstance(index);
+    }
+    public List<TreeInstance> getObjects()
+    {
+        return new List<TreeInstance>(terrain_data.treeInstances);
+    }
+    public void setObjects(List<TreeInstance> instances)
+    {
+        terrain_data.SetTreeInstances(instances.ToArray(), true);
     }
     // Returns an object (tree) location in grid space
     public Vector3 getObjectLoc(int index)
