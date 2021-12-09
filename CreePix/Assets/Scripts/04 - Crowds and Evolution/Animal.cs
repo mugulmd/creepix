@@ -217,6 +217,8 @@ public class Animal : Agent
                 if (debugOn)
                 {
                     Debug.DrawLine(transform.position, hit.point, Color.yellow);
+                    Debug.DrawRay(hit.collider.transform.position + 3.5f * hit.collider.transform.up, 5 * predatorWorldVelocity, Color.red);
+
                     Debug.Log($"avoid {i} {avoid_vision[i]}  / {avoid_vision[nb_eyes + i]}");
                 }
             }

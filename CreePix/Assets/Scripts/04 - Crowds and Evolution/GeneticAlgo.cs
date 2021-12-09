@@ -44,7 +44,7 @@ public abstract class GeneticAlgo : MonoBehaviour {
 
         float y = terrain.terrainData.GetInterpolatedHeight(x / terrain.terrainData.heightmapResolution,
                                                   z / terrain.terrainData.heightmapResolution);
-        return makeAnimal(new Vector3(x, y, z));
+        return makeAnimal(new Vector3(x, y + 10, z));
     }
 
     public void addOffspring(Agent parent) {
