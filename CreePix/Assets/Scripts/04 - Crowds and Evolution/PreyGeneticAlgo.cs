@@ -34,7 +34,8 @@ public class PreyGeneticAlgo : GeneticAlgo
             details[y, x] = 1;
             curr_growth -= 1.0f;
         }
-        cterrain.saveDetails();
+
+        gameObject.GetComponent<CustomTerrain>().saveDetails();
     }
 
     void Update()

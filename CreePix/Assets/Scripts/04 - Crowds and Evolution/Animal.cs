@@ -78,10 +78,10 @@ public class Animal : Agent
     {
         predatorLayerMask = 1 << LayerMask.NameToLayer("Predator");
         baseColor = Color.blue;
-        network_struct = new int[] { 2 * hiddenLayersize + 3, 16, 3 };
+        network_struct = new int[] { 2 * hiddenLayersize + 2, 16, 3 };
         food_network_struct = new int[] { nb_eyes, hiddenLayersize };
         avoid_network_struct = new int[]{ 2*nb_eyes, hiddenLayersize };
-        vision = new float[2* hiddenLayersize + 3];
+        vision = new float[2* hiddenLayersize + 2];
         food_vision = new float[nb_eyes];
         avoid_vision = new float[2*nb_eyes];
         angle_step = 2 * max_angle / (nb_eyes - 1);
@@ -131,19 +131,18 @@ public class Animal : Agent
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
-        foreach (Material mat in materials)
+        /*foreach (Material mat in materials)
         {
             if (mat != null)
                 mat.color = baseColor * (energy / max_energy);
-        }
+        }*/
 
         // Update receptor
         updateVision();
+
         // Use brain
         float[] output = brain.getOutput(vision);
-        vision[hiddenLayersize+1] = output[0];
-        vision[hiddenLayersize+2] = output[1];
-        vision[hiddenLayersize+3] = output[2];
+        
         if (debugOn)
         {
             Debug.Log($"importance {output[2]}");
@@ -195,7 +194,7 @@ public class Animal : Agent
                     food_vision[i] = d / max_vision;
                     if (debugOn)
                     {
-                        Debug.DrawLine(transform.position, transform.position + d * v, Color.white);
+                        Debug.DrawLine(transform.position + 3.5f * transform.up, transform.position + d * v, Color.white);
                         Debug.Log($"food {i} {food_vision[i]}");
                     }
                     break;
@@ -204,13 +203,13 @@ public class Animal : Agent
 
             avoid_vision[i] = 1.0f;
             avoid_vision[nb_eyes + i] = 1.0f;
-            if (Physics.Raycast(transform.position, v, out RaycastHit hit, max_vision, predatorLayerMask))
+            if (Physics.Raycast(transform.position + 3.5f * transform.up, v, out RaycastHit hit, max_vision, predatorLayerMask))
             {
                 if (hit.collider.tag != "Predator")
                     Debug.Log("Problemo");
 
 
-                Vector3 predatorWorldVelocity = hit.collider.transform.parent.gameObject.GetComponent<QuadrupedProceduralMotion>().getScaledCurrentVelocity();
+                Vector3 predatorWorldVelocity = hit.collider.transform.parent.gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
 
                 avoid_vision[i] = hit.distance / max_vision;
                 avoid_vision[nb_eyes + i] = (Vector3.Dot(predatorWorldVelocity.normalized, transform.forward) + 1) / 2;
@@ -236,6 +235,10 @@ public class Animal : Agent
             vision[i] = output_food[i];
             vision[hiddenLayersize + i] = output_avoid[i];
         }
+
+        Vector3 animalScaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
+        vision[2 * hiddenLayersize] = (Vector3.Dot(animalScaledVelocity.normalized, transform.forward) + 1) / 2;
+        vision[2 * hiddenLayersize + 1] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
     }
 }
 

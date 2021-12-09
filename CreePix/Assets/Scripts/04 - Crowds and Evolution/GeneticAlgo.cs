@@ -19,7 +19,7 @@ public abstract class GeneticAlgo : MonoBehaviour {
 
     void Start() {
         terrain = Terrain.activeTerrain;
-        cterrain = GetComponent<CustomTerrain>();
+        cterrain = gameObject.GetComponent<CustomTerrain>();
 
         animals = new List<GameObject>();
         width = terrain.terrainData.size.x;
@@ -39,7 +39,11 @@ public abstract class GeneticAlgo : MonoBehaviour {
         Vector3 scale = terrain.terrainData.heightmapScale;
         float x = (0.001f + UnityEngine.Random.Range(0, 0.998f)) * width / scale.x;
         float z = (0.001f + UnityEngine.Random.Range(0, 0.998f)) * width / scale.z;
-        float y = cterrain.getInterp(x, z);
+        
+
+
+        float y = terrain.terrainData.GetInterpolatedHeight(x / terrain.terrainData.heightmapResolution,
+                                                  z / terrain.terrainData.heightmapResolution);
         return makeAnimal(new Vector3(x, y, z));
     }
 
@@ -58,7 +62,7 @@ public abstract class GeneticAlgo : MonoBehaviour {
         animals.Remove(animal.transform.gameObject);
         if (destroy)
         {
-            animal.gameObject.GetComponent<QuadrupedProceduralMotion>().destroyFootSteps();
+            animal.gameObject.GetComponent<ProceduralMotion>().destroyFootSteps();
             Destroy(animal.transform.gameObject);
         }
 

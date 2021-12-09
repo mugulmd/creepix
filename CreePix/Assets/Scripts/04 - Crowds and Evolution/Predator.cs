@@ -77,7 +77,9 @@ public class Predator : Agent
             dy >= 0 && dy < details.GetLength(0))
         {
 
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2.5f, preyLayerMask);
+
+
+            Collider[] hitColliders = Physics.OverlapSphere(transform.position + 3.5f * transform.up, 2.5f, preyLayerMask);
 
 
             foreach (Collider hitCollider in hitColliders)
@@ -86,6 +88,7 @@ public class Predator : Agent
                 {
                     Debug.Log("PROBLEM");
                 }
+
                 Agent prey = hitCollider.transform.parent.gameObject.GetComponent<Agent>();
                 terrain.gameObject.GetComponent<PreyGeneticAlgo>().removeAnimal(prey);
             }
@@ -104,19 +107,17 @@ public class Predator : Agent
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
-        foreach (Material mat in materials)
+        /*foreach (Material mat in materials)
         {
             if (mat != null)
                 mat.color = baseColor * (energy / max_energy);
-        }
+        }*/
 
         // Update receptor
         updateVision();
         // Use brain
         float[] output = brain.getOutput(vision);
-        vision[nb_eyes] = output[0];
-        vision[nb_eyes + 1] = output[1];
-        vision[nb_eyes + 2] = output[2];
+
         if (debugOn)
         {
             Debug.Log($"importance {output[2]}");
@@ -143,19 +144,25 @@ public class Predator : Agent
 
             vision[i] = 1.0f;
 
-            if (Physics.Raycast(transform.position, v, out RaycastHit hit, max_vision, preyLayerMask))
+
+            if (Physics.Raycast(transform.position + 3.5f * transform.up, v, out RaycastHit hit, max_vision, preyLayerMask))
             {
                 if (hit.collider.tag != "Prey")
                     Debug.Log("Problemo");
                 vision[i] = hit.distance / max_vision;
                 if (debugOn)
                 {
-                    Debug.DrawLine(transform.position, hit.point, Color.yellow);
+                    Debug.DrawLine(transform.position + 3.5f * transform.up, hit.point, Color.yellow);
                     Debug.Log($"{i} {vision[i]}");
                 }
             }
         }
 
+        Vector3 relativeScaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
+        vision[nb_eyes] = (Vector3.Dot(relativeScaledVelocity.normalized, transform.forward) + 1) / 2;
+        vision[nb_eyes + 1] = relativeScaledVelocity.magnitude;
+        vision[nb_eyes + 2] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
+
     }
-    
+
 }
