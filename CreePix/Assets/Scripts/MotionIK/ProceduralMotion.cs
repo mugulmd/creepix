@@ -12,6 +12,8 @@ public class ProceduralMotion : MonoBehaviour
     [Space(20)]
     public float turnAcceleration;
     public float moveAcceleration;
+
+    public Transform goal;
    
     SmoothDamp.Vector3 currentVelocity;
     SmoothDamp.Float currentAngularVelocity;
@@ -127,8 +129,12 @@ public class ProceduralMotion : MonoBehaviour
             Vector3 noise = 0.1f * noiseMag * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
             currentGoal_Position += noise;
         }
-        
+
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
+
+        
+
+
         Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoal_Position - transform.position, transform.up);
 
 
