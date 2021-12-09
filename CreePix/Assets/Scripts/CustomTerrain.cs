@@ -49,10 +49,10 @@ public class CustomTerrain : MonoBehaviour
 
         game_manager = GameObject.Find("Game Manager");
         cam_ctrl = game_manager.GetComponent<CameraController>();
-
+        
         highlight_go = GameObject.Find("Cursor Highlight");
         highlight_proj = highlight_go.GetComponent<Projector>();
-
+        
         // Details 
         terrain_size = terrain_data.size;
         detail_width = terrain_data.detailWidth;
