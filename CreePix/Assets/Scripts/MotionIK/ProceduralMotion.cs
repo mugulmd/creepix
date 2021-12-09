@@ -15,9 +15,7 @@ public class ProceduralMotion : MonoBehaviour
     [Space(20)]
     public float turnAcceleration;
     public float moveAcceleration;
-    [Space(20)]
-    public float minDistToGoal;
-    public float maxDistToGoal;
+   
     SmoothDamp.Vector3 currentVelocity;
     SmoothDamp.Float currentAngularVelocity;
 
@@ -44,23 +42,32 @@ public class ProceduralMotion : MonoBehaviour
 
     public int direction;
 
+    protected Terrain terrain;
+    protected CustomTerrain cterrain;
+    protected float width, height;
 
+    private Coroutine gaitCoroutine;
 
+    private Vector3 currentGoal_Position;
+    private float currentGoalImportance;
 
-
-
-
-
-
-
-
-
+    public float minReachableDistance = 2f;
+    public float maxReachableDistance = 8f;
 
 
     // Awake is called when the script instance is being loaded.
     void Awake()
     {
-        StartCoroutine(Gait());
+        terrain = Terrain.activeTerrain;
+        cterrain = terrain.GetComponent<CustomTerrain>();
+
+        width = terrain.terrainData.size.x;
+        height = terrain.terrainData.size.z;
+
+        currentGoal_Position = hips.position;
+        currentGoalImportance = 0;
+
+        gaitCoroutine = StartCoroutine(Gait());
 
         BodyInitialize();
     }
@@ -75,6 +82,30 @@ public class ProceduralMotion : MonoBehaviour
     private void LateUpdate()
     {
         RootAdaptation();
+        if (transform.position.x > 497 || transform.position.x < 2 || transform.position.z > 497 || transform.position.z < 2)
+        {
+            Vector3 loc = transform.position;
+            loc.x = (loc.x < 1) ? loc.x + 494 : ((loc.x > 498) ? loc.x - 494 : loc.x);
+            loc.z = (loc.z < 1) ? loc.z + 494 : ((loc.z > 498) ? loc.z - 494 : loc.z);
+
+            transform.position = loc;
+
+        }
+    }
+    public Vector3 getScaledCurrentVelocity()
+    {
+        return new Vector3(currentVelocity.x / moveSpeed, currentVelocity.y / moveSpeed, currentVelocity.z / moveSpeed);
+    }
+    public float getCurrentImportance()
+    {
+        return currentGoalImportance;
+    }
+    public void destroyFootSteps()
+    {
+        if (gaitCoroutine != null)
+            StopCoroutine(gaitCoroutine);
+        Destroy(LeftFoot.gameObject);
+        Destroy(RightFoot.gameObject);
     }
 
     #region Root Motion
@@ -82,18 +113,38 @@ public class ProceduralMotion : MonoBehaviour
     /// <summary>
     /// Method used to move the character towards the goal.
     /// </summary>
+
     private void RootMotion()
     {
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
-        Vector3 towardGoal = goal.position - transform.position;
-        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(towardGoal, transform.up);
+        Vector3 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, distToGoal, importance)
+
+        if (currentGoalImportance * 10 < next_goalInfo[2]
+            || Vector3.Distance(currentGoal_Position, transform.position) < minReachableDistance
+            || Vector3.Distance(currentGoal_Position, transform.position) > maxReachableDistance)
+        {
+            if (gameObject.GetComponent<Agent>().debugOn && currentGoalImportance * 10 < next_goalInfo[2])
+                Debug.Log("change importance");
+            
+            currentGoal_Position = transform.position + Quaternion.Euler(0, next_goalInfo[0], 0) * (next_goalInfo[1] * transform.forward);
+            currentGoalImportance = next_goalInfo[2];
+        }
+
+        Vector3 noise = 0.2f * Mathf.Pow(currentGoalImportance, 3) * currentGoal_Position.magnitude * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+        currentGoal_Position += noise;
+        
+        // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
+        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoal_Position - transform.position, transform.up);
 
 
 
         // Angles between the forward direction and the direction to the goal. 
         var angToGoal = Vector3.SignedAngle(transform.forward, towardGoalProjected, transform.up);
 
-
+        if (gameObject.GetComponent<Agent>().debugOn)
+        {
+            Debug.DrawLine(transform.position + 3.5f*transform.up, transform.position + 3.5f * transform.up + towardGoalProjected, gameObject.GetComponent<Agent>().getRayColor(), 1);
+        }
 
 
 
@@ -108,27 +159,15 @@ public class ProceduralMotion : MonoBehaviour
 
         // Estimating targetVelocity.
         // Only translate if we are close facing to the goal.
-        if (Mathf.Abs(angToGoal) < 90)
+        if (Mathf.Abs(angToGoal) < 120)
         {
-
-            var distToGoal = towardGoalProjected.magnitude;
-
-            // Move towards target if we are too far.
-            if (distToGoal > maxDistToGoal)
-            {
-                targetVelocity = moveSpeed * towardGoalProjected.normalized;
-            }
-            // Move away from target if we are too close.
-            else if (distToGoal < minDistToGoal)
-            {
-                targetVelocity = moveSpeed * -towardGoalProjected.normalized * moveBackwardFactor;
-            }
+            targetVelocity = moveSpeed * towardGoalProjected.normalized;
 
             // Limit velocity progressively as we approach max angular velocity.
             targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(currentAngularVelocity));
-
         }
 
+        currentVelocity.Step(targetVelocity, moveAcceleration);
 
         // Apply targetVelocity using Step() and applying.
         currentVelocity.Step(targetVelocity, moveAcceleration);
@@ -157,8 +196,6 @@ public class ProceduralMotion : MonoBehaviour
 
         if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity))
         {
-
-            Debug.Log(hit.transform.gameObject.layer);
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
                 posHit = hit.point;
@@ -166,6 +203,7 @@ public class ProceduralMotion : MonoBehaviour
                 normalTerrain = hit.normal;
             }
         }
+        transform.position = new Vector3(transform.position.x, posHit.y, transform.position.z);
         constantHipsPosition = new Vector3(hips.position.x, hips.position.y-posHit.y, hips.position.z);
         constantHipsRotation = new Vector3(hips.rotation.x, hips.rotation.y, hips.rotation.z);
 
@@ -190,7 +228,6 @@ public class ProceduralMotion : MonoBehaviour
         // The ray information gives you where you hit and the normal of the terrain in that location.
         if (Physics.Raycast(raycastOriginBody, -transform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
-            Debug.Log(hit.transform.gameObject.layer);
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
                 posHit = hit.point;

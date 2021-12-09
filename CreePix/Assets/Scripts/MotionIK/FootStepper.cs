@@ -47,14 +47,13 @@ public class FootStepper : MonoBehaviour
          */
 
         // START TODO ###################
-
+        
         float distFromHome = Vector3.Distance(transform.position, homeTransform.position);
         float angleFromHome = Quaternion.Angle(transform.rotation, homeTransform.rotation);
 
         if ((distFromHome > distanceThreshold) || (angleFromHome > angleThreshold))
         {
             // END TODO ###################
-
             // Get the grounded location for the feet. It can return false - in that case, it won't move.
             // This method modifies the values by reference, which are used later.
             if (GetGroundedEndPosition(out Vector3 endPos, out Vector3 endNormal))
@@ -106,7 +105,7 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up *100f;
+        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up * 100f;
 
         if (Physics.Raycast(raycastOrigin, -homeTransform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
@@ -132,6 +131,7 @@ public class FootStepper : MonoBehaviour
     IEnumerator MoveFoot(Vector3 endPos, Quaternion endRot, float moveTime)
     {
         // We are in the coroutine, meaning that a moving action is taking place.
+        
         Moving = true;
 
         // Store the initial, current position and rotation for the interpolation.
@@ -173,7 +173,7 @@ public class FootStepper : MonoBehaviour
 
             Vector3 centerPoint = (startPos + endPos) / 2;
             //centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
-            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) *2f;
+            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) * 2f;
 
             transform.position = Vector3.Lerp(Vector3.Lerp(startPos, centerPoint, normalizedTime), Vector3.Lerp(centerPoint, endPos, normalizedTime), normalizedTime);
 
