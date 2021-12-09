@@ -1085,7 +1085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff275fccda6075043a5c25a9cec49523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goal: {fileID: 0}
   turnSpeed: 150
   moveSpeed: 1
   moveBackwardFactor: 0.66
@@ -1103,8 +1102,8 @@ MonoBehaviour:
   LeftFoot: {fileID: 7052688493185423147}
   RightFoot: {fileID: 7052688492100749826}
   direction: -1
-  minReachableDistance: 0.5
-  maxReachableDistance: 15
+  minReachableDistance: 0.1
+  maxReachableDistance: 26
 --- !u!114 &6587670158951043566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1121,12 +1120,12 @@ MonoBehaviour:
   mutate_rate: 0.01
   swap_strength: 10
   mutate_strength: 0.5
-  max_angle: 60
-  max_energy: 40
+  max_angle: 40
+  max_energy: 60
   energy_loss: 0.1
   energy_gain: 5
   energy: 0
-  max_vision: 14
+  max_vision: 25
   nb_eyes: 9
   debugOn: 0
 --- !u!1 &7052688492148165206

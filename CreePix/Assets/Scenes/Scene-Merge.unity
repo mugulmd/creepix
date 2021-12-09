@@ -332,9 +332,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb71133da054d164496a395d9c62ad57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pop_size: 175
+  pop_size: 200
   pop_max: 350
-  prefab: {fileID: 5146938571425019881, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
+  prefab: {fileID: 7052688492132881813, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
 --- !u!114 &190539413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,7 +349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pop_size: 150
   pop_max: 350
-  prefab: {fileID: 5130662992550848622, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
+  prefab: {fileID: 8649111039262654852, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
   vegetation_growth_rate: 0.5
 --- !u!1 &299677873
 GameObject:
