@@ -33,6 +33,7 @@ public class ProceduralMotion : MonoBehaviour
     public Transform groundChecker;
     public Transform spine;
 
+    
 
 
     // Foot Steppers for each leg.
@@ -132,6 +133,8 @@ public class ProceduralMotion : MonoBehaviour
 
         Vector3 noise = 0.2f * Mathf.Pow(currentGoalImportance, 3) * currentGoal_Position.magnitude * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
         currentGoal_Position += noise;
+
+
         
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
         Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoal_Position - transform.position, transform.up);

@@ -43,8 +43,8 @@ public class Predator : Agent
     {
         preyLayerMask = 1 << LayerMask.NameToLayer("Prey");
         baseColor = Color.red;
-        vision = new float[nb_eyes + 3];
-        network_struct = new int[] { nb_eyes + 3, 16, 3 };
+        vision = new float[2 * nb_eyes + 2];
+        network_struct = new int[] { 2*nb_eyes + 2, 32, 8, 3 };
         angle_step = 2 * max_angle / (nb_eyes - 1);
     }
     void Update()
@@ -150,18 +150,21 @@ public class Predator : Agent
                 if (hit.collider.tag != "Prey")
                     Debug.Log("Problemo");
                 vision[i] = hit.distance / max_vision;
+                Vector3 preyrWorldVelocity = hit.collider.transform.parent.gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
+                vision[nb_eyes + i] = (Vector3.Dot(preyrWorldVelocity.normalized, transform.forward) + 1) / 2;
+
                 if (debugOn)
                 {
                     Debug.DrawLine(transform.position + 3.5f * transform.up, hit.point, Color.yellow);
+                    Debug.DrawRay(hit.collider.transform.position + 3.5f * hit.collider.transform.up, 5 * preyrWorldVelocity, Color.red);
                     Debug.Log($"{i} {vision[i]}");
                 }
             }
         }
 
-        Vector3 relativeScaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
-        vision[nb_eyes] = (Vector3.Dot(relativeScaledVelocity.normalized, transform.forward) + 1) / 2;
-        vision[nb_eyes + 1] = relativeScaledVelocity.magnitude;
-        vision[nb_eyes + 2] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
+        Vector3 scaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
+        vision[2 * nb_eyes] = (Vector3.Dot(scaledVelocity.normalized, transform.forward) + 1) / 2;
+        vision[2 * nb_eyes + 1] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
 
     }
 
