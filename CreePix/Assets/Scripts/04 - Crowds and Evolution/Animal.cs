@@ -11,7 +11,7 @@ public class Animal : Agent
     public static SimpleNeuralNet best_sub_brain_food = null;
     public static SimpleNeuralNet best_sub_brain_avoid = null;
 
-    const int hiddenLayersize = 8;
+    const int hiddenLayersize = 16;
 
     private SimpleNeuralNet sub_brain_avoid = null;
     private SimpleNeuralNet sub_brain_food = null;
@@ -78,10 +78,10 @@ public class Animal : Agent
     {
         predatorLayerMask = 1 << LayerMask.NameToLayer("Predator");
         baseColor = Color.blue;
-        network_struct = new int[] { 2 * hiddenLayersize + 2, 16, 3 };
+        network_struct = new int[] { 2 * hiddenLayersize, 16, 2 };
         food_network_struct = new int[] { nb_eyes, hiddenLayersize };
         avoid_network_struct = new int[]{ 2*nb_eyes, hiddenLayersize };
-        vision = new float[2* hiddenLayersize + 2];
+        vision = new float[2* hiddenLayersize];
         food_vision = new float[nb_eyes];
         avoid_vision = new float[2*nb_eyes];
         angle_step = 2 * max_angle / (nb_eyes - 1);
@@ -131,11 +131,6 @@ public class Animal : Agent
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
-        /*foreach (Material mat in materials)
-        {
-            if (mat != null)
-                mat.color = baseColor * (energy / max_energy);
-        }*/
 
         // Update receptor
         updateVision();
@@ -143,14 +138,10 @@ public class Animal : Agent
         // Use brain
         float[] output = brain.getOutput(vision);
         
-        if (debugOn)
-        {
-            Debug.Log($"importance {output[2]}");
-        }
         // Act using actuators
         float angle = (output[0] * 2.0f - 1.0f) * max_angle;
         float distToGoal = 0.2f + output[1] * max_vision;
-        nextGoalInfo = new Vector3(angle, distToGoal, output[2]);
+        nextGoalInfo = new Vector2(angle, distToGoal);
     }
 
     private void updateVision() {
@@ -237,10 +228,6 @@ public class Animal : Agent
             vision[i] = output_food[i];
             vision[hiddenLayersize + i] = output_avoid[i];
         }
-
-        Vector3 animalScaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
-        vision[2 * hiddenLayersize] = (Vector3.Dot(animalScaledVelocity.normalized, transform.forward) + 1) / 2;
-        vision[2 * hiddenLayersize + 1] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
     }
 }
 

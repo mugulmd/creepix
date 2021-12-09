@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 190539411}
   - component: {fileID: 190539413}
   - component: {fileID: 190539412}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: Terrain
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -332,9 +332,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb71133da054d164496a395d9c62ad57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pop_size: 70
-  pop_max: 200
-  prefab: {fileID: 5518263872070342003, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
+  pop_size: 175
+  pop_max: 350
+  prefab: {fileID: 5146938571425019881, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
 --- !u!114 &190539413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,10 +347,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 964390080fcba4b46a6429d114882837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pop_size: 100
-  pop_max: 200
-  prefab: {fileID: 1262377930691369956, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
-  vegetation_growth_rate: 1
+  pop_size: 150
+  pop_max: 350
+  prefab: {fileID: 5130662992550848622, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
+  vegetation_growth_rate: 0.5
 --- !u!1 &299677873
 GameObject:
   m_ObjectHideFlags: 0

@@ -43,8 +43,8 @@ public class Predator : Agent
     {
         preyLayerMask = 1 << LayerMask.NameToLayer("Prey");
         baseColor = Color.red;
-        vision = new float[2 * nb_eyes + 2];
-        network_struct = new int[] { 2*nb_eyes + 2, 32, 8, 3 };
+        vision = new float[2 * nb_eyes];
+        network_struct = new int[] { 2*nb_eyes, 32, 16, 2 };
         angle_step = 2 * max_angle / (nb_eyes - 1);
     }
     void Update()
@@ -107,25 +107,16 @@ public class Predator : Agent
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
-        /*foreach (Material mat in materials)
-        {
-            if (mat != null)
-                mat.color = baseColor * (energy / max_energy);
-        }*/
 
         // Update receptor
         updateVision();
         // Use brain
         float[] output = brain.getOutput(vision);
 
-        if (debugOn)
-        {
-            Debug.Log($"importance {output[2]}");
-        }
         // Act using actuators
         float angle = (output[0] * 2.0f - 1.0f) * max_angle;
         float distToGoal = output[1] * max_vision;
-        nextGoalInfo = new Vector3(angle, distToGoal, output[2]); 
+        nextGoalInfo = new Vector2(angle, distToGoal); 
     }
     private void updateVision()
     {
@@ -161,11 +152,6 @@ public class Predator : Agent
                 }
             }
         }
-
-        Vector3 scaledVelocity = gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
-        vision[2 * nb_eyes] = (Vector3.Dot(scaledVelocity.normalized, transform.forward) + 1) / 2;
-        vision[2 * nb_eyes + 1] = gameObject.GetComponent<ProceduralMotion>().getCurrentImportance();
-
     }
 
 }

@@ -30,11 +30,11 @@ public abstract class Agent : MonoBehaviour
     protected int[,] details = null;
     protected Vector2 detail_sz;
     protected Vector2 terrain_sz;
-    protected List<Material> materials;
+
     protected float[] vision;
     
     protected int generation = 0;
-    protected Vector3 nextGoalInfo;
+    protected Vector2 nextGoalInfo;
 
     public int getGeneration()
     {
@@ -70,7 +70,7 @@ public abstract class Agent : MonoBehaviour
             max_energy += 60f;
         }
     }
-    public Vector3 getNextGoalInfo()
+    public Vector2 getNextGoalInfo()
     {
         return nextGoalInfo;
     }
@@ -78,18 +78,9 @@ public abstract class Agent : MonoBehaviour
     void Start()
     {
         name = $"{getType()} gen{generation} {(int)(UnityEngine.Random.value * 10000000)}";
-        nextGoalInfo = new Vector3(0, 1, 0);
-
-        materials = new List<Material>();
+        nextGoalInfo = new Vector2(0, 1);
         energy = max_energy;
-        // Renderer used to update animal color
-        // Needs to be updated for more complex models
-        MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer renderer in renderers)
-        {
-            if (renderer != null)
-                materials.Add(renderer.material);
-        }
+
     }
     public void setup(CustomTerrain ct, GeneticAlgo ga)
     {

@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class ProceduralMotion : MonoBehaviour
 {
-    [Header("Goal")]
-    public Transform goal; // The character will move towards this goal.
-
     // Settings relative to the root motion.
     [Header("Root Motion Settings")]
     public float turnSpeed;
@@ -50,14 +47,13 @@ public class ProceduralMotion : MonoBehaviour
     private Coroutine gaitCoroutine;
 
     private Vector3 currentGoal_Position;
-    private float currentGoalImportance;
 
     public float minReachableDistance = 2f;
     public float maxReachableDistance = 8f;
 
 
     // Awake is called when the script instance is being loaded.
-    void Awake()
+    void Start()
     {
         terrain = Terrain.activeTerrain;
         cterrain = terrain.GetComponent<CustomTerrain>();
@@ -66,8 +62,6 @@ public class ProceduralMotion : MonoBehaviour
         height = terrain.terrainData.size.z;
 
         currentGoal_Position = hips.position;
-        currentGoalImportance = 0;
-
         gaitCoroutine = StartCoroutine(Gait());
 
         BodyInitialize();
@@ -97,10 +91,6 @@ public class ProceduralMotion : MonoBehaviour
     {
         return new Vector3(currentVelocity.x / moveSpeed, currentVelocity.y / moveSpeed, currentVelocity.z / moveSpeed);
     }
-    public float getCurrentImportance()
-    {
-        return currentGoalImportance;
-    }
     public void destroyFootSteps()
     {
         if (gaitCoroutine != null)
@@ -118,23 +108,25 @@ public class ProceduralMotion : MonoBehaviour
     private void RootMotion()
     {
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
-        Vector3 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, distToGoal, importance)
+        Vector2 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, distToGoal)
+        
+        if (gameObject.GetComponent<Agent>().debugOn)
+            Debug.Log($"input {next_goalInfo}");
 
-        if (currentGoalImportance * 10 < next_goalInfo[2]
+        Vector3 nextGoalPos = transform.position + Quaternion.Euler(0, next_goalInfo[0], 0) * (next_goalInfo[1] * transform.forward);
+
+        if (4 * Vector3.Distance(nextGoalPos, transform.position)  < Vector3.Distance(currentGoal_Position, transform.position)
             || Vector3.Distance(currentGoal_Position, transform.position) < minReachableDistance
             || Vector3.Distance(currentGoal_Position, transform.position) > maxReachableDistance)
         {
-            if (gameObject.GetComponent<Agent>().debugOn && currentGoalImportance * 10 < next_goalInfo[2])
+            if (gameObject.GetComponent<Agent>().debugOn)
                 Debug.Log("change importance");
-            
-            currentGoal_Position = transform.position + Quaternion.Euler(0, next_goalInfo[0], 0) * (next_goalInfo[1] * transform.forward);
-            currentGoalImportance = next_goalInfo[2];
+
+            float noiseMag = Vector3.Distance(nextGoalPos, currentGoal_Position);
+            currentGoal_Position = nextGoalPos;
+            Vector3 noise = 0.1f * noiseMag * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+            currentGoal_Position += noise;
         }
-
-        Vector3 noise = 0.2f * Mathf.Pow(currentGoalImportance, 3) * currentGoal_Position.magnitude * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
-        currentGoal_Position += noise;
-
-
         
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
         Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoal_Position - transform.position, transform.up);
