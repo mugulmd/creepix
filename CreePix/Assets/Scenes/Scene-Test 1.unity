@@ -407,7 +407,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217263780}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 290.3, y: 3.94, z: 169.1}
+  m_LocalPosition: {x: 290.3, y: 49.5, z: -131.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1038,7 +1038,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7052688492132881808, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7052688492132881808, guid: b4c4e3e49bd1d2946bc2c4d99285efbe, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1097,6 +1097,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7527740034837435336, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
+      propertyPath: goal
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8649111039262654852, guid: 05e7caf77faabdd4db254403cdeec8ef, type: 3}
       propertyPath: m_Name
       value: ManIK
