@@ -44,7 +44,7 @@ public class Predator : Agent
         preyLayerMask = 1 << LayerMask.NameToLayer("Prey");
         baseColor = Color.red;
         vision = new float[2 * nb_eyes];
-        network_struct = new int[] { 2*nb_eyes, 32, 16, 2 };
+        network_struct = new int[] { 2*nb_eyes, 32, 8, 2 };
         angle_step = 2 * max_angle / (nb_eyes - 1);
     }
     void Update()
@@ -115,8 +115,8 @@ public class Predator : Agent
 
         // Act using actuators
         float angle = (output[0] * 2.0f - 1.0f) * max_angle;
-        float distToGoal = output[1] * max_vision;
-        nextGoalInfo = new Vector2(angle, distToGoal); 
+        float noise = output[1];
+        nextGoalInfo = new Vector2(angle, noise); 
     }
     private void updateVision()
     {

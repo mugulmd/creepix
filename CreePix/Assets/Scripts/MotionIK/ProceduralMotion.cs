@@ -46,7 +46,7 @@ public class ProceduralMotion : MonoBehaviour
 
     private Coroutine gaitCoroutine;
 
-    private Vector3 currentGoal_Position;
+    private Vector3 currentGoalDirection;
 
     public float minReachableDistance = 2f;
     public float maxReachableDistance = 8f;
@@ -61,7 +61,7 @@ public class ProceduralMotion : MonoBehaviour
         width = terrain.terrainData.size.x;
         height = terrain.terrainData.size.z;
 
-        currentGoal_Position = hips.position;
+        currentGoalDirection = transform.forward;
         gaitCoroutine = StartCoroutine(Gait());
 
         BodyInitialize();
@@ -107,37 +107,43 @@ public class ProceduralMotion : MonoBehaviour
 
     private void RootMotion()
     {
+       if (currentGoalDirection.x == float.NaN)
+        {
+            Debug.Log("Mochkla");
+
+        }
+
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
-        Vector2 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, distToGoal)
+        Vector2 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, noise)
         
         if (gameObject.GetComponent<Agent>().debugOn)
             Debug.Log($"input {next_goalInfo}");
 
-        Vector3 nextGoalPos = transform.position + Quaternion.Euler(0, next_goalInfo[0], 0) * (next_goalInfo[1] * transform.forward);
+        Vector3 nextGoalDirection = Quaternion.Euler(0, next_goalInfo[0], 0) * transform.forward;
 
-        if (4 * Vector3.Distance(nextGoalPos, transform.position)  < Vector3.Distance(currentGoal_Position, transform.position)
-            || Vector3.Distance(currentGoal_Position, transform.position) < minReachableDistance
-            || Vector3.Distance(currentGoal_Position, transform.position) > maxReachableDistance)
+
+        float consistency = 1 - Mathf.Abs(Vector3.Dot(nextGoalDirection, currentGoalDirection));
+        if (next_goalInfo[1] > 0.5f &&  consistency > 0.5f)
         {
             if (gameObject.GetComponent<Agent>().debugOn)
                 Debug.Log("change importance");
 
-            float noiseMag = Vector3.Distance(nextGoalPos, currentGoal_Position);
-            currentGoal_Position = nextGoalPos;
-            Vector3 noise = 0.1f * noiseMag * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
-            currentGoal_Position += noise;
+            currentGoalDirection = nextGoalDirection;
+            Vector3 noise = 0.1f * consistency * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+            currentGoalDirection += noise;
+            currentGoalDirection.Normalize();
         }
         
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
-        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoal_Position - transform.position, transform.up);
-
-
+        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoalDirection, transform.up);
 
         // Angles between the forward direction and the direction to the goal. 
         var angToGoal = Vector3.SignedAngle(transform.forward, towardGoalProjected, transform.up);
 
+
         if (gameObject.GetComponent<Agent>().debugOn)
         {
+            Debug.Log($"angToGoal {angToGoal}");
             Debug.DrawLine(transform.position + 3.5f*transform.up, transform.position + 3.5f * transform.up + towardGoalProjected, gameObject.GetComponent<Agent>().getRayColor(), 1);
         }
 
@@ -161,8 +167,6 @@ public class ProceduralMotion : MonoBehaviour
             // Limit velocity progressively as we approach max angular velocity.
             targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(currentAngularVelocity));
         }
-
-        currentVelocity.Step(targetVelocity, moveAcceleration);
 
         // Apply targetVelocity using Step() and applying.
         currentVelocity.Step(targetVelocity, moveAcceleration);

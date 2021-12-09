@@ -11,7 +11,7 @@ public class Animal : Agent
     public static SimpleNeuralNet best_sub_brain_food = null;
     public static SimpleNeuralNet best_sub_brain_avoid = null;
 
-    const int hiddenLayersize = 16;
+    const int hiddenLayersize = 8;
 
     private SimpleNeuralNet sub_brain_avoid = null;
     private SimpleNeuralNet sub_brain_food = null;
@@ -78,7 +78,7 @@ public class Animal : Agent
     {
         predatorLayerMask = 1 << LayerMask.NameToLayer("Predator");
         baseColor = Color.blue;
-        network_struct = new int[] { 2 * hiddenLayersize, 16, 2 };
+        network_struct = new int[] { 2 * hiddenLayersize, 8, 2 };
         food_network_struct = new int[] { nb_eyes, hiddenLayersize };
         avoid_network_struct = new int[]{ 2*nb_eyes, hiddenLayersize };
         vision = new float[2* hiddenLayersize];
@@ -140,8 +140,8 @@ public class Animal : Agent
         
         // Act using actuators
         float angle = (output[0] * 2.0f - 1.0f) * max_angle;
-        float distToGoal = 0.2f + output[1] * max_vision;
-        nextGoalInfo = new Vector2(angle, distToGoal);
+        float noise = output[1];
+        nextGoalInfo = new Vector2(angle, noise);
     }
 
     private void updateVision() {
