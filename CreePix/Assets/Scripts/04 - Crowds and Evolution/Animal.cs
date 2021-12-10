@@ -11,10 +11,10 @@ public class Animal : Agent
     public static SimpleNeuralNet best_sub_brain_food = null;
     public static SimpleNeuralNet best_sub_brain_avoid = null;
 
-    const int hiddenLayersize = 8;
+    const int hiddenLayersize = 16;
 
-    private SimpleNeuralNet sub_brain_avoid = null;
-    private SimpleNeuralNet sub_brain_food = null;
+    protected SimpleNeuralNet sub_brain_avoid = null;
+    protected SimpleNeuralNet sub_brain_food = null;
     protected int[] food_network_struct;
     protected int[] avoid_network_struct;
     protected float[] food_vision;
@@ -39,7 +39,6 @@ public class Animal : Agent
         best_brain = new SimpleNeuralNet(brain);
         best_sub_brain_food = new SimpleNeuralNet(sub_brain_food);
         best_sub_brain_avoid = new SimpleNeuralNet(sub_brain_avoid);
-
     }
     public override string getType(){
         return "Animal";
@@ -78,9 +77,9 @@ public class Animal : Agent
     {
         predatorLayerMask = 1 << LayerMask.NameToLayer("Predator");
         baseColor = Color.blue;
-        network_struct = new int[] { 2 * hiddenLayersize, 8, 2 };
-        food_network_struct = new int[] { nb_eyes, hiddenLayersize };
-        avoid_network_struct = new int[]{ 2*nb_eyes, hiddenLayersize };
+        network_struct = new int[] { 2 * hiddenLayersize, 16, 8, 2 };
+        food_network_struct = new int[] { nb_eyes, 2 * hiddenLayersize, hiddenLayersize };
+        avoid_network_struct = new int[]{ 2*nb_eyes, 2 * hiddenLayersize, hiddenLayersize };
         vision = new float[2* hiddenLayersize];
         food_vision = new float[nb_eyes];
         avoid_vision = new float[2*nb_eyes];
@@ -101,9 +100,9 @@ public class Animal : Agent
                 brain = new SimpleNeuralNet(best_brain);
                 sub_brain_food = new SimpleNeuralNet(best_sub_brain_food);
                 sub_brain_avoid = new SimpleNeuralNet(best_sub_brain_avoid);
-                brain.mutate(swap_rate, 0.5f, swap_strength * 2, mutate_strength * 2);
-                sub_brain_food.mutate(swap_rate, 0.5f, swap_strength * 2, mutate_strength * 2);
-                sub_brain_avoid.mutate(swap_rate, 0.5f, swap_strength * 2, mutate_strength * 2);
+                brain.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
+                sub_brain_food.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
+                sub_brain_avoid.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
             }
         }
         if (terrain == null)
@@ -116,6 +115,9 @@ public class Animal : Agent
         energy -= energy_loss;
         int dx = (int)((transform.position.x / terrain_sz.x) * detail_sz.x);
         int dy = (int)((transform.position.z / terrain_sz.y) * detail_sz.y);
+        if (debugOn)
+            Debug.Log($"terrain {dx} to {details.GetLength(0)} / {dy} to {details.GetLength(1)} ");
+
         // If over grass, eat it, gain energy and spawn offspring
         if (dx >= 0 && dx < details.GetLength(1) &&
             dy >= 0 && dy < details.GetLength(0) &&
@@ -139,7 +141,7 @@ public class Animal : Agent
         float[] output = brain.getOutput(vision);
         
         // Act using actuators
-        float angle = (output[0] * 2.0f - 1.0f) * max_angle;
+        float angle = (output[0] * 2.0f - 1.0f) * action_angle;
         float noise = output[1];
         nextGoalInfo = new Vector2(angle, noise);
     }
@@ -159,7 +161,8 @@ public class Animal : Agent
 
         for (int i = 0; i < nb_eyes; i++)
         {
-            Quaternion rot = transform.rotation * Quaternion.Euler(0.0f, -max_angle + angle_step * i, 0.0f);
+            Vector3 normalTerrain = gameObject.GetComponent<ProceduralMotion>().normalTerrain;
+            Quaternion rot = transform.rotation * Quaternion.AngleAxis(-max_angle + angle_step * i, normalTerrain);
 
             Vector3 v = rot * Vector3.forward;
             float sx = transform.position.x * ratio.x;
@@ -207,7 +210,7 @@ public class Animal : Agent
 
                 if (debugOn)
                 {
-                    Debug.DrawLine(transform.position, hit.point, Color.yellow);
+                    Debug.DrawLine(transform.position, hit.point, Color.blue);
                     Debug.DrawRay(hit.collider.transform.position + 3.5f * hit.collider.transform.up, 5 * predatorWorldVelocity, Color.red);
 
                     Debug.Log($"avoid {i} {avoid_vision[i]}  / {avoid_vision[nb_eyes + i]}");

@@ -1085,11 +1085,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff275fccda6075043a5c25a9cec49523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 150
+  turnSpeed: 80
   moveSpeed: 1
   moveBackwardFactor: 0.66
   turnAcceleration: 2
   moveAcceleration: 2
+  goal: {fileID: 0}
   hips: {fileID: 7052688492873139472}
   heightAcceleration: 1
   constantHipsPosition: {x: 0, y: 0, z: 0}
@@ -1102,8 +1103,7 @@ MonoBehaviour:
   LeftFoot: {fileID: 7052688493185423147}
   RightFoot: {fileID: 7052688492100749826}
   direction: -1
-  minReachableDistance: 0.1
-  maxReachableDistance: 26
+  normalTerrain: {x: 0, y: 0, z: 0}
 --- !u!114 &6587670158951043566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1126,7 +1126,7 @@ MonoBehaviour:
   energy_gain: 5
   energy: 0
   max_vision: 25
-  nb_eyes: 9
+  nb_eyes: 16
   debugOn: 0
 --- !u!1 &7052688492148165206
 GameObject:

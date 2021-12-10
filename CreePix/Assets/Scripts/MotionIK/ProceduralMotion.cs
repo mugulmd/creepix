@@ -49,16 +49,17 @@ public class ProceduralMotion : MonoBehaviour
     private Coroutine gaitCoroutine;
 
     private Vector3 currentGoalDirection;
+    public Vector3 normalTerrain;
 
-    public float minReachableDistance = 2f;
-    public float maxReachableDistance = 8f;
-
+    private float angleAccumulator = 0;
 
     // Awake is called when the script instance is being loaded.
     void Start()
     {
         terrain = Terrain.activeTerrain;
         cterrain = terrain.GetComponent<CustomTerrain>();
+
+        normalTerrain = transform.up;
 
         width = terrain.terrainData.size.x;
         height = terrain.terrainData.size.z;
@@ -78,16 +79,11 @@ public class ProceduralMotion : MonoBehaviour
     // LateUpdate is called after all Update functions have been called.
     private void LateUpdate()
     {
-        RootAdaptation();
         if (transform.position.x > 497 || transform.position.x < 2 || transform.position.z > 497 || transform.position.z < 2)
         {
-            Vector3 loc = transform.position;
-            loc.x = (loc.x < 1) ? loc.x + 494 : ((loc.x > 498) ? loc.x - 494 : loc.x);
-            loc.z = (loc.z < 1) ? loc.z + 494 : ((loc.z > 498) ? loc.z - 494 : loc.z);
-
-            transform.position = loc;
-
+            gameObject.GetComponent<Agent>().energy = -5;
         }
+        RootAdaptation();
     }
     public Vector3 getScaledCurrentVelocity()
     {
@@ -109,74 +105,80 @@ public class ProceduralMotion : MonoBehaviour
 
     private void RootMotion()
     {
-       if (currentGoalDirection.x == float.NaN)
-        {
-            Debug.Log("Mochkla");
-
-        }
 
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
         Vector2 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, noise)
-        
+
+        float newAngle = next_goalInfo[0];
         if (gameObject.GetComponent<Agent>().debugOn)
-            Debug.Log($"input {next_goalInfo}");
-
-        Vector3 nextGoalDirection = Quaternion.Euler(0, next_goalInfo[0], 0) * transform.forward;
-
-
-        float consistency = 1 - Mathf.Abs(Vector3.Dot(nextGoalDirection, currentGoalDirection));
-        if (next_goalInfo[1] > 0.5f &&  consistency > 0.5f)
         {
-            if (gameObject.GetComponent<Agent>().debugOn)
-                Debug.Log("change importance");
-
-            currentGoalDirection = nextGoalDirection;
-            Vector3 noise = 0.1f * consistency * new Vector3(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
-            currentGoalDirection += noise;
-            currentGoalDirection.Normalize();
+            Debug.Log($"input {newAngle}");
         }
+        if (Mathf.Abs(newAngle) < 5)
+        {
+            newAngle = 0;
+        } else if (Mathf.Abs(newAngle) > 60)
+        {
+            newAngle = Mathf.Sign(newAngle) * 60;
+        }
+        float leftAngle = Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up);
+
+        float angleToPerform = leftAngle;
+
+        if (Mathf.Abs(leftAngle) < 5 ||Mathf.Abs(leftAngle - newAngle) > 30) 
+            angleToPerform = next_goalInfo[1] * leftAngle + (1 - next_goalInfo[1]) * newAngle;
+
+        if (gameObject.GetComponent<Agent>().debugOn)
+        {
+            Debug.Log($"newAngle {newAngle}");
+            Debug.Log($"leftAngle {leftAngle}");
+            Debug.Log($"angleToPerform {angleToPerform}");
+        }
+
+        angleToPerform += 10 * UnityEngine.Random.value - 5;
+
+        currentGoalDirection = Quaternion.Euler(0, angleToPerform, 0) * transform.forward;
 
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
-        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoalDirection, transform.up);
-
+        Vector3 towardGoalProjected = Vector3.ProjectOnPlane(currentGoalDirection, normalTerrain);
 
         // Angles between the forward direction and the direction to the goal. 
-        var angToGoal = Vector3.SignedAngle(transform.forward, towardGoalProjected, transform.up);
-
+        var angToGoal = Vector3.SignedAngle(transform.forward, towardGoalProjected, normalTerrain);
 
         if (gameObject.GetComponent<Agent>().debugOn)
         {
-            Debug.Log($"angToGoal {angToGoal}");
-            Debug.DrawLine(transform.position + 3.5f*transform.up, transform.position + 3.5f * transform.up + towardGoalProjected, gameObject.GetComponent<Agent>().getRayColor(), 1);
+            Debug.DrawLine(transform.position + 3.5f * transform.up, transform.position + 3.5f * transform.up + 5 * towardGoalProjected, gameObject.GetComponent<Agent>().getRayColor(), 1);
         }
 
-
-
         // Get a perfectange of the turnSpeed to apply based on how far the goal is and its sign.
-        float targetAngularVelocity = Mathf.Sign(angToGoal) * Mathf.InverseLerp(5f, 30f, Mathf.Abs(angToGoal)) * turnSpeed;
+        float targetAngularVelocity = Mathf.Sign(angToGoal) * Mathf.InverseLerp(0f, 65f, Mathf.Abs(angToGoal)) * turnSpeed;
 
         // Step() smoothing function.
         currentAngularVelocity.Step(targetAngularVelocity, turnAcceleration);
 
-        // Initialize zero root velocity.
-        Vector3 targetVelocity = Vector3.zero;
+        // Initialize  root velocity.
+        Vector3 targetVelocity = moveSpeed * towardGoalProjected.normalized;
 
-        // Estimating targetVelocity.
-        // Only translate if we are close facing to the goal.
-        if (Mathf.Abs(angToGoal) < 120)
-        {
-            targetVelocity = moveSpeed * towardGoalProjected.normalized;
-
-            // Limit velocity progressively as we approach max angular velocity.
-            targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(currentAngularVelocity));
-        }
+        // Limit velocity progressively as we approach max angular velocity.
+        targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(currentAngularVelocity));
+      
 
         // Apply targetVelocity using Step() and applying.
         currentVelocity.Step(targetVelocity, moveAcceleration);
         transform.position += currentVelocity.currentValue * Time.deltaTime;
 
         // Apply rotation.
+        if (gameObject.GetComponent<Agent>().debugOn)
+        {
+            Debug.Log($"consistency  before {Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up)}");
+        }
+
         transform.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.up);
+
+        if (gameObject.GetComponent<Agent>().debugOn)
+        {
+            Debug.Log($"consistency  after {Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up)}");
+        }
 
     }
 
@@ -221,7 +223,7 @@ public class ProceduralMotion : MonoBehaviour
         Vector3 rayCastOriginSpine = spine.position;
         float distanceHit=0;
         Vector3 posHit=Vector3.zero;
-        Vector3 normalTerrain = Vector3.zero;
+        normalTerrain = transform.up;
 
 
 

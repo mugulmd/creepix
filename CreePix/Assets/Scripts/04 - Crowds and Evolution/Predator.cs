@@ -44,7 +44,7 @@ public class Predator : Agent
         preyLayerMask = 1 << LayerMask.NameToLayer("Prey");
         baseColor = Color.red;
         vision = new float[2 * nb_eyes];
-        network_struct = new int[] { 2*nb_eyes, 32, 8, 2 };
+        network_struct = new int[] { 2*nb_eyes, 32, 16, 8, 2 };
         angle_step = 2 * max_angle / (nb_eyes - 1);
     }
     void Update()
@@ -58,7 +58,7 @@ public class Predator : Agent
             else
             {
                 brain = new SimpleNeuralNet(best_brain);
-                brain.mutate(swap_rate, 0.5f, swap_strength * 2, mutate_strength * 2);
+                brain.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
             }
         }
         if (terrain == null)
@@ -114,7 +114,7 @@ public class Predator : Agent
         float[] output = brain.getOutput(vision);
 
         // Act using actuators
-        float angle = (output[0] * 2.0f - 1.0f) * max_angle;
+        float angle = (output[0] * 2.0f - 1.0f) * action_angle;
         float noise = output[1];
         nextGoalInfo = new Vector2(angle, noise); 
     }
@@ -125,11 +125,11 @@ public class Predator : Agent
             Debug.Log("Enter");
         }
 
-        float start_angle = -max_angle;
-
         for (int i = 0; i < nb_eyes; i++)
         {
-            Quaternion rot = transform.rotation * Quaternion.Euler(0.0f, start_angle + angle_step * i, 0.0f);
+            Vector3 normalTerrain = gameObject.GetComponent<ProceduralMotion>().normalTerrain;
+
+            Quaternion rot = transform.rotation * Quaternion.AngleAxis(-max_angle + angle_step * i, normalTerrain);
 
             Vector3 v = rot * Vector3.forward;
 

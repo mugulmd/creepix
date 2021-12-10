@@ -969,7 +969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff275fccda6075043a5c25a9cec49523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 150
+  turnSpeed: 80
   moveSpeed: 0.8
   moveBackwardFactor: 0.66
   turnAcceleration: 2
@@ -987,8 +987,7 @@ MonoBehaviour:
   LeftFoot: {fileID: 7527740034551043993}
   RightFoot: {fileID: 7527740035394423879}
   direction: 1
-  minReachableDistance: 0.1
-  maxReachableDistance: 26
+  normalTerrain: {x: 0, y: 0, z: 0}
 --- !u!114 &7527740034837435337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1011,7 +1010,7 @@ MonoBehaviour:
   energy_gain: 5
   energy: 0
   max_vision: 25
-  nb_eyes: 14
+  nb_eyes: 16
   debugOn: 0
 --- !u!1 &7527740034877800963
 GameObject:

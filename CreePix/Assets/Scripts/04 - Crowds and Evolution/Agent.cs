@@ -9,6 +9,7 @@ public abstract class Agent : MonoBehaviour
     public float swap_strength = 10.0f;
     public float mutate_strength = 0.5f;
     public float max_angle = 10.0f;
+    protected float action_angle = 90.0f;
     public float max_energy = 10.0f;
     public float energy_loss = 0.1f;
     public float energy_gain = 10.0f;
@@ -19,7 +20,7 @@ public abstract class Agent : MonoBehaviour
     public int nb_eyes = 6;
 
     protected Color baseColor;
-    public bool debugOn = false;
+    public bool debugOn;
 
     protected int[] network_struct;
     protected SimpleNeuralNet brain = null;
@@ -53,7 +54,7 @@ public abstract class Agent : MonoBehaviour
         generation = gen;
         if (generation > getMaxGeneration())
         {
-            if (generation > 15)
+            if (generation > 10)
             {
                 Debug.Log($"{getType()} best brain set {generation}");
                 setBestBrain();
@@ -61,11 +62,11 @@ public abstract class Agent : MonoBehaviour
             setMaxGeneration(gen);
         }
 
-        if (generation > 20 && generation <= 40)
+        if (generation > 10 && generation <= 30)
         {
             max_energy += 20f;
         }
-        else if (generation > 40)
+        else if (generation > 30)
         {
             max_energy += 60f;
         }
