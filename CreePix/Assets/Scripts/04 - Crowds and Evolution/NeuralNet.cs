@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.IO;
+using UnityEditor;
 public class SimpleNeuralNet {
 
     private List<float[,]> all_weights;
@@ -18,24 +19,37 @@ public class SimpleNeuralNet {
         }
     }
 
-    public SimpleNeuralNet(int[] structure) {
+    public SimpleNeuralNet(int[] structure, int state = 0) {
         all_weights = new List<float[,]>();
         all_results = new List<float[ ]>();
         for (int i = 1; i < structure.Length; i++) {
-            float[,] weights = makeLayer(structure[i-1], structure[i]);
+            float[,] weights = makeLayer(structure[i-1], structure[i], 0);
             all_weights.Add(weights);
             float[] results = new float[structure[i]];
             all_results.Add(results);
         }
     }
 
-    private float[,] makeLayer(int input, int nb_nodes) {
+    private float[,] makeLayer(int input, int nb_nodes, int state = 0) {
         // weights: bias+input x neurons
         float[,] weights = new float[input + 1, nb_nodes];
-        for (int i = 0; i < weights.GetLength(0); i++) {
-            for (int j = 0; j < weights.GetLength(1); j++) {
-                weights[i, j] = (2.0f * UnityEngine.Random.value - 1.0f) * 10.0f;
+        if (state == 0)
+        {
+            for (int i = 0; i < weights.GetLength(0); i++)
+            {
+                for (int j = 0; j < weights.GetLength(1); j++)
+                {
+                    weights[i, j] = (2.0f * UnityEngine.Random.value - 1.0f) * 10.0f;
+                }
             }
+        }
+        else if (state == 1)
+        {
+
+        }
+        else
+        {
+
         }
         return weights;
     }
@@ -79,6 +93,29 @@ public class SimpleNeuralNet {
                 }
             }
         }
+    }
+
+    public void writeToDebug(string s)
+    {
+        string path = $"Assets/brain_{s}.txt";
+
+        //Write some text to the test.txt file
+        StreamWriter writer = new StreamWriter(path, true);
+        
+        for (int layer_i = 0; layer_i < all_weights.Count; layer_i++)
+        {
+            float[,] weights = all_weights[layer_i];
+
+            for (int i = 0; i < weights.GetLength(0); i++)
+            {
+                for (int j = 0; j < weights.GetLength(1); j++)
+                {
+                    writer.WriteLine($"weights[{i}, {j}] = {weights[i, j]};");
+                }
+            }
+
+        }
+        writer.Close();
     }
 
 }

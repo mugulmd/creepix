@@ -498,7 +498,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740034728462652}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: a505043cde14cc147be9a7581dc1c842, type: 2}
   m_CullingMode: 0
@@ -969,13 +969,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff275fccda6075043a5c25a9cec49523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 80
-  moveSpeed: 0.8
+  turnSpeed: 700
+  moveSpeed: 1
   moveBackwardFactor: 0.66
-  turnAcceleration: 2
-  moveAcceleration: 1
+  turnAcceleration: 5
+  moveAcceleration: 2
   goal: {fileID: 0}
-  hips: {fileID: 7527740035875442498}
+  hips: {fileID: 7527740036165949052}
   heightAcceleration: 1
   constantHipsPosition: {x: 0, y: 0, z: 0}
   constantHipsRotation: {x: 0, y: 0, z: 0}
@@ -1005,13 +1005,13 @@ MonoBehaviour:
   swap_strength: 10
   mutate_strength: 0.5
   max_angle: 40
-  max_energy: 40
-  energy_loss: 0.1
-  energy_gain: 5
   energy: 0
   max_vision: 25
-  nb_eyes: 16
+  nb_eyes: 6
   debugOn: 0
+  printOn: 0
+  split_energy: 250
+  energy_gain: 1
 --- !u!1 &7527740034877800963
 GameObject:
   m_ObjectHideFlags: 0
@@ -2053,7 +2053,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035297079888}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c5dbbea9346d3649ae20f4b6a7acef0, type: 3}
   m_Name: 
@@ -2802,8 +2802,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035607032497}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.000000093626504, y: 0.0000013107746, z: -0.00000018725363, w: 1}
+  m_LocalPosition: {x: 0.000005701466, y: -0.0000010728836, z: 0.0000074794148}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7527740034728462655}
@@ -2817,7 +2817,7 @@ ParentConstraint:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035607032497}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Weight: 1
   m_TranslationAtRest: {x: 0, y: 0, z: 0}
   m_RotationAtRest: {x: 0, y: 0, z: 0}
@@ -3193,8 +3193,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035795893820}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.000000093626504, y: 0.0000013107746, z: -0.00000018725363, w: 1}
+  m_LocalPosition: {x: 0.000005701466, y: -0.0000010728836, z: 0.0000074794148}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7527740036433431070}
@@ -3208,7 +3208,7 @@ ParentConstraint:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035795893820}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Weight: 1
   m_TranslationAtRest: {x: 0, y: 0, z: 0}
   m_RotationAtRest: {x: 0, y: 0, z: 0}
@@ -3329,7 +3329,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740035868184126}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c5dbbea9346d3649ae20f4b6a7acef0, type: 3}
   m_Name: 
@@ -3356,9 +3356,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7527740035875442498}
+  - component: {fileID: 5944486997274040629}
   m_Layer: 9
   m_Name: pelvis
-  m_TagString: Untagged
+  m_TagString: Prey
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3380,6 +3381,19 @@ Transform:
   m_Father: {fileID: 7527740036165949052}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5944486997274040629
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7527740035875442499}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.8, y: 0.4, z: 0.8}
+  m_Center: {x: 0.08, y: 0.05, z: 0}
 --- !u!1 &7527740035890374391
 GameObject:
   m_ObjectHideFlags: 0
@@ -3907,7 +3921,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7527740036165949052}
-  - component: {fileID: 7527740036165949055}
   m_Layer: 9
   m_Name: root
   m_TagString: Prey
@@ -3930,19 +3943,6 @@ Transform:
   m_Father: {fileID: 7527740034837435339}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &7527740036165949055
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7527740036165949053}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.7, y: 0.5, z: 1.8}
-  m_Center: {x: 0, y: 0, z: 1}
 --- !u!1 &7527740036168326061
 GameObject:
   m_ObjectHideFlags: 0
@@ -4700,7 +4700,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7527740036433431071}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 5caba0cab1655324da5d74c42ccbfedc, type: 2}
   m_CullingMode: 0

@@ -15,8 +15,8 @@ public class ProceduralMotion : MonoBehaviour
 
     public Transform goal;
    
-    SmoothDamp.Vector3 currentVelocity;
-    SmoothDamp.Float currentAngularVelocity;
+    //SmoothDamp.Vector3 currentVelocity;
+    //SmoothDamp.Float currentAngularVelocity;
 
     // Settings relative to body adaptation to the terrain.
     [Header("Body Adaptation Settings")]
@@ -50,8 +50,8 @@ public class ProceduralMotion : MonoBehaviour
 
     private Vector3 currentGoalDirection;
     public Vector3 normalTerrain;
+    private Vector3 targetVelocity;
 
-    private float angleAccumulator = 0;
 
     // Awake is called when the script instance is being loaded.
     void Start()
@@ -65,6 +65,7 @@ public class ProceduralMotion : MonoBehaviour
         height = terrain.terrainData.size.z;
 
         currentGoalDirection = transform.forward;
+        targetVelocity = moveSpeed * transform.forward;
         gaitCoroutine = StartCoroutine(Gait());
 
         BodyInitialize();
@@ -84,10 +85,6 @@ public class ProceduralMotion : MonoBehaviour
             gameObject.GetComponent<Agent>().energy = -5;
         }
         RootAdaptation();
-    }
-    public Vector3 getScaledCurrentVelocity()
-    {
-        return new Vector3(currentVelocity.x / moveSpeed, currentVelocity.y / moveSpeed, currentVelocity.z / moveSpeed);
     }
     public void destroyFootSteps()
     {
@@ -110,6 +107,7 @@ public class ProceduralMotion : MonoBehaviour
         Vector2 next_goalInfo = gameObject.GetComponent<Agent>().getNextGoalInfo(); // (angle, noise)
 
         float newAngle = next_goalInfo[0];
+        
         if (gameObject.GetComponent<Agent>().debugOn)
         {
             Debug.Log($"input {newAngle}");
@@ -117,25 +115,17 @@ public class ProceduralMotion : MonoBehaviour
         if (Mathf.Abs(newAngle) < 5)
         {
             newAngle = 0;
-        } else if (Mathf.Abs(newAngle) > 60)
+        } else if (Mathf.Abs(newAngle) > 20)
         {
-            newAngle = Mathf.Sign(newAngle) * 60;
+            newAngle = Mathf.Sign(newAngle) * 20;
         }
-        float leftAngle = Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up);
 
-        float angleToPerform = leftAngle;
-
-        if (Mathf.Abs(leftAngle) < 5 ||Mathf.Abs(leftAngle - newAngle) > 30) 
-            angleToPerform = next_goalInfo[1] * leftAngle + (1 - next_goalInfo[1]) * newAngle;
+        float angleToPerform = (1 - next_goalInfo[1]) * newAngle;
 
         if (gameObject.GetComponent<Agent>().debugOn)
         {
-            Debug.Log($"newAngle {newAngle}");
-            Debug.Log($"leftAngle {leftAngle}");
             Debug.Log($"angleToPerform {angleToPerform}");
         }
-
-        angleToPerform += 10 * UnityEngine.Random.value - 5;
 
         currentGoalDirection = Quaternion.Euler(0, angleToPerform, 0) * transform.forward;
 
@@ -151,35 +141,20 @@ public class ProceduralMotion : MonoBehaviour
         }
 
         // Get a perfectange of the turnSpeed to apply based on how far the goal is and its sign.
-        float targetAngularVelocity = Mathf.Sign(angToGoal) * Mathf.InverseLerp(0f, 65f, Mathf.Abs(angToGoal)) * turnSpeed;
-
-        // Step() smoothing function.
-        currentAngularVelocity.Step(targetAngularVelocity, turnAcceleration);
+        float targetAngularVelocity = Mathf.Sign(angToGoal) * Mathf.InverseLerp(0f, 30f, Mathf.Abs(angToGoal)) * turnSpeed;
 
         // Initialize  root velocity.
-        Vector3 targetVelocity = moveSpeed * towardGoalProjected.normalized;
+        targetVelocity = moveSpeed * towardGoalProjected.normalized;
 
         // Limit velocity progressively as we approach max angular velocity.
-        targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(currentAngularVelocity));
+        //targetVelocity *= Mathf.InverseLerp(turnSpeed, turnSpeed * 0.2f, Mathf.Abs(targetAngularVelocity));
       
 
         // Apply targetVelocity using Step() and applying.
-        currentVelocity.Step(targetVelocity, moveAcceleration);
-        transform.position += currentVelocity.currentValue * Time.deltaTime;
+        transform.position += targetVelocity * Time.deltaTime;
 
         // Apply rotation.
-        if (gameObject.GetComponent<Agent>().debugOn)
-        {
-            Debug.Log($"consistency  before {Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up)}");
-        }
-
-        transform.rotation *= Quaternion.AngleAxis(Time.deltaTime * currentAngularVelocity, transform.up);
-
-        if (gameObject.GetComponent<Agent>().debugOn)
-        {
-            Debug.Log($"consistency  after {Vector3.SignedAngle(transform.forward, currentGoalDirection, transform.up)}");
-        }
-
+        transform.rotation *= Quaternion.AngleAxis(Time.deltaTime * targetAngularVelocity, transform.up);
     }
 
     #endregion

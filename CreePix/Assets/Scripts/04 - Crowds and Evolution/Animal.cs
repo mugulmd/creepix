@@ -8,17 +8,8 @@ public class Animal : Agent
 {
     static public int max_generation = 0;
     public static SimpleNeuralNet best_brain = null;
-    public static SimpleNeuralNet best_sub_brain_food = null;
-    public static SimpleNeuralNet best_sub_brain_avoid = null;
-
-    const int hiddenLayersize = 16;
-
-    protected SimpleNeuralNet sub_brain_avoid = null;
-    protected SimpleNeuralNet sub_brain_food = null;
-    protected int[] food_network_struct;
-    protected int[] avoid_network_struct;
-    protected float[] food_vision;
-    protected float[] avoid_vision;
+    public float split_energy = 180f;
+    public float energy_gain = 2.0f;
 
     private int predatorLayerMask;
 
@@ -37,8 +28,6 @@ public class Animal : Agent
     public override void setBestBrain()
     {
         best_brain = new SimpleNeuralNet(brain);
-        best_sub_brain_food = new SimpleNeuralNet(sub_brain_food);
-        best_sub_brain_avoid = new SimpleNeuralNet(sub_brain_avoid);
     }
     public override string getType(){
         return "Animal";
@@ -54,36 +43,20 @@ public class Animal : Agent
             Debug.Log("inheritance failed");
         }
         brain = new SimpleNeuralNet(other.getBrain());
-        sub_brain_food = new SimpleNeuralNet(((Animal)other).getSubBrainFood());
-        sub_brain_avoid = new SimpleNeuralNet(((Animal)other).getSubBrainAvoid());
-
         if (mutate)
         {
             brain.mutate(swap_rate, mutate_rate, swap_strength, mutate_strength);
-            sub_brain_food.mutate(swap_rate, mutate_rate, swap_strength, mutate_strength);
-            sub_brain_avoid.mutate(swap_rate, mutate_rate, swap_strength, mutate_strength);
         }
-    }
-    public SimpleNeuralNet getSubBrainFood()
-    {
-        return sub_brain_food;
-    }
-    public SimpleNeuralNet getSubBrainAvoid()
-    {
-        return sub_brain_avoid;
     }
 
     private void Awake()
     {
         predatorLayerMask = 1 << LayerMask.NameToLayer("Predator");
         baseColor = Color.blue;
-        network_struct = new int[] { 2 * hiddenLayersize, 16, 8, 2 };
-        food_network_struct = new int[] { nb_eyes, 2 * hiddenLayersize, hiddenLayersize };
-        avoid_network_struct = new int[]{ 2*nb_eyes, 2 * hiddenLayersize, hiddenLayersize };
-        vision = new float[2* hiddenLayersize];
-        food_vision = new float[nb_eyes];
-        avoid_vision = new float[2*nb_eyes];
+        network_struct = new int[] {nb_eyes, 16, 2 };
+        vision = new float[nb_eyes];
         angle_step = 2 * max_angle / (nb_eyes - 1);
+        energy = split_energy/3;
     }
 
     void Update() {
@@ -91,18 +64,12 @@ public class Animal : Agent
         {
             if (best_brain == null)
             {
-                sub_brain_food = new SimpleNeuralNet(food_network_struct);
-                sub_brain_avoid = new SimpleNeuralNet(avoid_network_struct);
                 brain = new SimpleNeuralNet(network_struct);
             }
             else
             {
                 brain = new SimpleNeuralNet(best_brain);
-                sub_brain_food = new SimpleNeuralNet(best_sub_brain_food);
-                sub_brain_avoid = new SimpleNeuralNet(best_sub_brain_avoid);
                 brain.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
-                sub_brain_food.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
-                sub_brain_avoid.mutate(swap_rate, 2 * mutate_rate, swap_strength * 2, mutate_strength * 2);
             }
         }
         if (terrain == null)
@@ -112,31 +79,30 @@ public class Animal : Agent
             return;
         }
 
-        energy -= energy_loss;
+        if (printOn)
+        {
+            brain.writeToDebug("human");
+            printOn = false;
+        }
+
+
         int dx = (int)((transform.position.x / terrain_sz.x) * detail_sz.x);
         int dy = (int)((transform.position.z / terrain_sz.y) * detail_sz.y);
         if (debugOn)
             Debug.Log($"terrain {dx} to {details.GetLength(0)} / {dy} to {details.GetLength(1)} ");
 
-        // If over grass, eat it, gain energy and spawn offspring
-        if (dx >= 0 && dx < details.GetLength(1) &&
-            dy >= 0 && dy < details.GetLength(0) &&
-            details[dy, dx] > 0) {
-            details[dy, dx] = 0;
-            energy += energy_gain;
-            if (energy > max_energy)
-                energy = max_energy;
+        if (energy > split_energy) {
+            energy = split_energy / 2;
             genetic_algo.addOffspring(this);
         }
-        // Die when out of energy
-        if (energy < 0) {
+
+        else if (energy < 0) {
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
 
         // Update receptor
         updateVision();
-
         // Use brain
         float[] output = brain.getOutput(vision);
         
@@ -146,18 +112,14 @@ public class Animal : Agent
         nextGoalInfo = new Vector2(angle, noise);
     }
 
-    private void updateVision() {
+    private void updateVision()
+    {
         if (debugOn)
         {
             Debug.Log("Enter");
         }
-        updateSubVision();
-        setUpVision();
-    }
 
-    private void updateSubVision()
-    {
-        Vector2 ratio = detail_sz / terrain_sz;
+        energy -= energy_gain/10;
 
         for (int i = 0; i < nb_eyes; i++)
         {
@@ -165,72 +127,28 @@ public class Animal : Agent
             Quaternion rot = transform.rotation * Quaternion.AngleAxis(-max_angle + angle_step * i, normalTerrain);
 
             Vector3 v = rot * Vector3.forward;
-            float sx = transform.position.x * ratio.x;
-            float sy = transform.position.z * ratio.y;
-            food_vision[i] = 1.0f;
-            for (float d = 1.0f; d < max_vision; d += 0.5f)
-            {
-                float px = (sx + d * v.x * ratio.x);
-                float py = (sy + d * v.z * ratio.y);
-                if (px < 0)
-                    px += detail_sz.x;
-                else if (px >= detail_sz.x)
-                    px -= detail_sz.x;
-                if (py < 0)
-                    py += detail_sz.y;
-                else if (py >= detail_sz.y)
-                    py -= detail_sz.y;
 
-                if ((int)px >= 0 && (int)px < details.GetLength(1) &&
-                    (int)py >= 0 && (int)py < details.GetLength(0) &&
-                    details[(int)py, (int)px] > 0)
-                {
-                    food_vision[i] = d / max_vision;
-                    if (debugOn)
-                    {
-                        Debug.DrawLine(transform.position + 3.5f * transform.up, transform.position + d * v, Color.white);
-                        Debug.Log($"food {i} {food_vision[i]}");
-                    }
-                    break;
-                }
-            }
+            vision[i] = 1.0f;
 
-            avoid_vision[i] = 1.0f;
-            avoid_vision[nb_eyes + i] = 1.0f;
+            bool didHit = false;
             if (Physics.Raycast(transform.position + 3.5f * transform.up, v, out RaycastHit hit, max_vision, predatorLayerMask))
             {
+                didHit = true;
                 if (hit.collider.tag != "Predator")
                     Debug.Log("Problemo");
 
-
-                Vector3 predatorWorldVelocity = hit.collider.transform.parent.gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
-
-                avoid_vision[i] = hit.distance / max_vision;
-                avoid_vision[nb_eyes + i] = (Vector3.Dot(predatorWorldVelocity.normalized, transform.forward) + 1) / 2;
+                vision[i] = hit.distance / max_vision;
 
                 if (debugOn)
                 {
                     Debug.DrawLine(transform.position, hit.point, Color.blue);
-                    Debug.DrawRay(hit.collider.transform.position + 3.5f * hit.collider.transform.up, 5 * predatorWorldVelocity, Color.red);
-
-                    Debug.Log($"avoid {i} {avoid_vision[i]}  / {avoid_vision[nb_eyes + i]}");
+                    Debug.Log($"avoid {i} {vision[i]}");
                 }
             }
-
+            if (didHit)
+                energy += energy_gain;
         }
     }
 
-    private void setUpVision()
-    {
-        
-        float[] output_food = sub_brain_food.getOutput(food_vision);
-        float[] output_avoid = sub_brain_avoid.getOutput(avoid_vision);
-
-        for (int i = 0; i< hiddenLayersize; i++)
-        {
-            vision[i] = output_food[i];
-            vision[hiddenLayersize + i] = output_avoid[i];
-        }
-    }
 }
 

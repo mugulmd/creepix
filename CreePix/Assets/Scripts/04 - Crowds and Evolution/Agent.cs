@@ -9,10 +9,7 @@ public abstract class Agent : MonoBehaviour
     public float swap_strength = 10.0f;
     public float mutate_strength = 0.5f;
     public float max_angle = 10.0f;
-    protected float action_angle = 90.0f;
-    public float max_energy = 10.0f;
-    public float energy_loss = 0.1f;
-    public float energy_gain = 10.0f;
+    protected float action_angle = 30.0f;
     public float energy;
 
     public float max_vision = 20.0f;
@@ -21,6 +18,7 @@ public abstract class Agent : MonoBehaviour
 
     protected Color baseColor;
     public bool debugOn;
+    public bool printOn;
 
     protected int[] network_struct;
     protected SimpleNeuralNet brain = null;
@@ -48,28 +46,20 @@ public abstract class Agent : MonoBehaviour
     public abstract void setBestBrain();
     public abstract string getType();
     public abstract Color getRayColor();
-
     public void setGeneration(int gen)
     {
         generation = gen;
         if (generation > getMaxGeneration())
         {
-            if (generation > 10)
+            if (generation > 25)
             {
                 Debug.Log($"{getType()} best brain set {generation}");
                 setBestBrain();
             }
             setMaxGeneration(gen);
         }
+        name = $"{getType()} gen{generation} {(int)(UnityEngine.Random.value * 10000000)}";
 
-        if (generation > 10 && generation <= 30)
-        {
-            max_energy += 20f;
-        }
-        else if (generation > 30)
-        {
-            max_energy += 60f;
-        }
     }
     public Vector2 getNextGoalInfo()
     {
@@ -80,8 +70,6 @@ public abstract class Agent : MonoBehaviour
     {
         name = $"{getType()} gen{generation} {(int)(UnityEngine.Random.value * 10000000)}";
         nextGoalInfo = new Vector2(0, 1);
-        energy = max_energy;
-
     }
     public void setup(CustomTerrain ct, GeneticAlgo ga)
     {
@@ -102,8 +90,5 @@ public abstract class Agent : MonoBehaviour
     {
         return brain;
     }
-    public float getHealth()
-    {
-        return energy / max_energy;
-    }
+ 
 }

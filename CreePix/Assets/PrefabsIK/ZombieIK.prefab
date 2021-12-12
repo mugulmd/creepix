@@ -1085,10 +1085,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff275fccda6075043a5c25a9cec49523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 80
+  turnSpeed: 700
   moveSpeed: 1
   moveBackwardFactor: 0.66
-  turnAcceleration: 2
+  turnAcceleration: 5
   moveAcceleration: 2
   goal: {fileID: 0}
   hips: {fileID: 7052688492873139472}
@@ -1121,13 +1121,14 @@ MonoBehaviour:
   swap_strength: 10
   mutate_strength: 0.5
   max_angle: 40
-  max_energy: 60
-  energy_loss: 0.1
-  energy_gain: 5
   energy: 0
   max_vision: 25
-  nb_eyes: 16
+  nb_eyes: 6
   debugOn: 0
+  printOn: 0
+  energy_loss: 0.1
+  energy_gain: 5
+  max_energy: 60
 --- !u!1 &7052688492148165206
 GameObject:
   m_ObjectHideFlags: 0

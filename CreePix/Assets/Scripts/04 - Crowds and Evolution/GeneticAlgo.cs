@@ -37,14 +37,14 @@ public abstract class GeneticAlgo : MonoBehaviour {
     }
     public GameObject makeAnimal() {
         Vector3 scale = terrain.terrainData.heightmapScale;
-        float x = (0.001f + UnityEngine.Random.Range(0, 0.998f)) * width / scale.x;
-        float z = (0.001f + UnityEngine.Random.Range(0, 0.998f)) * width / scale.z;
+        float x = (0.00005f + UnityEngine.Random.Range(0, 0.9009f)) * width / scale.x;
+        float z = (0.00005f + UnityEngine.Random.Range(0, 0.9009f)) * width / scale.z;
         
 
 
         float y = terrain.terrainData.GetInterpolatedHeight(x / terrain.terrainData.heightmapResolution,
                                                   z / terrain.terrainData.heightmapResolution);
-        return makeAnimal(new Vector3(x, y + 10, z));
+        return makeAnimal(new Vector3(x, y + 100, z));
     }
 
     public void addOffspring(Agent parent) {
@@ -52,7 +52,7 @@ public abstract class GeneticAlgo : MonoBehaviour {
         {
             return;
         }
-        GameObject animal = makeAnimal(parent.transform.position);
+        GameObject animal = makeAnimal(parent.transform.position + 100*Vector3.up);
         animal.GetComponent<Agent>().inheritBrain(parent, true);
         animal.GetComponent<Agent>().setGeneration(parent.getGeneration() + 1);
         animals.Add(animal);

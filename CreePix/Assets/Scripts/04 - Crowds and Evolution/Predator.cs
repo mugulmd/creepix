@@ -9,6 +9,10 @@ public class Predator : Agent
     static public int max_generation = 0;
     public static SimpleNeuralNet best_brain = null;
     private int preyLayerMask;
+    public float energy_loss = 0.1f;
+    public float energy_gain = 10.0f;
+    public float max_energy = 60.0f;
+
     public override int getMaxGeneration()
     {
         return max_generation;
@@ -44,8 +48,9 @@ public class Predator : Agent
         preyLayerMask = 1 << LayerMask.NameToLayer("Prey");
         baseColor = Color.red;
         vision = new float[2 * nb_eyes];
-        network_struct = new int[] { 2*nb_eyes, 32, 16, 8, 2 };
+        network_struct = new int[] { 2*nb_eyes, 16, 8, 2 };
         angle_step = 2 * max_angle / (nb_eyes - 1);
+        energy = max_energy;
     }
     void Update()
     {
@@ -69,6 +74,12 @@ public class Predator : Agent
             return;
         }
 
+        if (printOn)
+        {
+            brain.writeToDebug("zombie");
+            printOn = false;
+        }
+
         energy -= energy_loss;
         int dx = (int)((transform.position.x / terrain_sz.x) * detail_sz.x);
         int dy = (int)((transform.position.z / terrain_sz.y) * detail_sz.y);
@@ -89,7 +100,7 @@ public class Predator : Agent
                     Debug.Log("PROBLEM");
                 }
 
-                Agent prey = hitCollider.transform.parent.gameObject.GetComponent<Agent>();
+                Agent prey = hitCollider.transform.parent.transform.parent.gameObject.GetComponent<Agent>();
                 terrain.gameObject.GetComponent<PreyGeneticAlgo>().removeAnimal(prey);
             }
             if (hitColliders.Length > 0)
@@ -141,13 +152,10 @@ public class Predator : Agent
                 if (hit.collider.tag != "Prey")
                     Debug.Log("Problemo");
                 vision[i] = hit.distance / max_vision;
-                Vector3 preyrWorldVelocity = hit.collider.transform.parent.gameObject.GetComponent<ProceduralMotion>().getScaledCurrentVelocity();
-                vision[nb_eyes + i] = (Vector3.Dot(preyrWorldVelocity.normalized, transform.forward) + 1) / 2;
 
                 if (debugOn)
                 {
                     Debug.DrawLine(transform.position + 3.5f * transform.up, hit.point, Color.yellow);
-                    Debug.DrawRay(hit.collider.transform.position + 3.5f * hit.collider.transform.up, 5 * preyrWorldVelocity, Color.red);
                     Debug.Log($"{i} {vision[i]}");
                 }
             }
